@@ -1,0 +1,23 @@
+[core]
+    editor = vim
+
+[user]
+    email = thomas.hiscock@wanadoo.fr
+    name = Thomas Hiscock
+
+[color]
+    ui = true
+
+[color.branch]
+    upstream = cyan
+
+[alias]
+    cc = commit -v
+    ca = commit -v --amend
+    au = add -u
+    co = checkout
+    po = push origin
+    st = status
+    stu = status --untracked=no
+    lg = log --pretty=format:'%h - %an, %ar : %s'
+    lgg = log --pretty=format:'%h %s' --graph --all

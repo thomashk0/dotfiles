@@ -1,0 +1,222 @@
+" vim: set ft=vim sw=4 ts=4 sts=4 tw=80 foldmarker={,} foldlevel=0 foldmethod=marker:
+" ============================================================================ "
+" A minimal Vim configuration
+"
+" Author: Thomas Hiscock <thomas.hiscock@wanadoo.fr>
+" ============================================================================ "
+
+" Configuration variables {
+
+" Force this option to 0 to disable bepo bindings
+let g:use_bepo_keyboard = 1
+let g:use_molokai = 0
+" Extra shortcurts for tab management (disabled)
+" TODO: remove ?
+let g:use_tab_bindings = 0
+
+" }
+" General options (Plugins, UI, etc.) {
+
+set nocp
+call plug#begin('~/.vim/plugged')
+    Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
+    Plug 'christoomey/vim-tmux-navigator'
+    Plug 'godlygeek/tabular', { 'for' : ['tex'] }
+
+    let g:fzf_install = 'yes | ./install'
+    Plug 'junegunn/fzf', { 'do': g:fzf_install }
+    Plug 'junegunn/fzf.vim'
+
+    Plug 'tpope/vim-surround'
+    Plug 'tpope/vim-commentary'
+    Plug 'godlygeek/tabular'
+
+    " Also supports other languages
+    Plug 'rhysd/vim-clang-format', { 'for' : ['c', 'cpp'] }
+    Plug 'jceb/vim-orgmode', { 'for' : ['org'] }
+
+    if (g:use_molokai == 1)
+        Plug 'rafi/awesome-vim-colorschemes'
+    endif
+call plug#end()
+
+filetype on
+filetype indent on
+filetype plugin on
+
+
+" No backup and swap files
+set nobackup nowb noswapfile
+
+" Styling
+set nospell
+
+set background=dark
+if (g:use_molokai == 1)
+    colorscheme molokai
+else
+    colorscheme default
+endif
+
+syntax enable
+set number
+set list
+set listchars=tab:›-,trail:.,extends:#,nbsp:.
+set cc=80
+
+" Status bar
+set showcmd ruler laststatus=2
+set statusline=%!MyStatusLine()
+
+" Tab, whitespaces, indent
+set expandtab
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
+set smarttab
+set smartindent
+set nowrap
+
+set ignorecase
+set hlsearch            " Highlight search results
+set incsearch           " Search while typing the search string
+set path+=**
+set wildmenu
+
+" }
+" Keybindings {
+
+" Leader is set as space
+let mapleader = " "
+
+set backspace=indent,eol,start
+set whichwrap+=<,>,h,l
+
+if (g:use_bepo_keyboard == 1)
+    " Remap basic movements
+    noremap n l
+    noremap r k
+    noremap s j
+    noremap t h
+
+    noremap h t
+    noremap j s
+    noremap l n
+    noremap k r
+
+    noremap è ^
+    noremap È 0
+
+    " Fast moves between windows
+    nnoremap <C-r> <C-W>k
+    nnoremap <C-s> <C-W>j
+    nnoremap <C-t> <C-W>h
+    nnoremap <C-n> <C-W>l
+
+    highlight NbSp ctermbg=lightgray guibg=lightred
+    match NbSp /\%xa0/
+
+    " Completion bindings
+    " See :help inc-completion
+    imap ,o <C-X><C-O>
+    imap ,l <C-X><C-L>
+    imap ,t <C-X><C-]>
+    imap ,p <C-X><C-P>
+    imap ,f <C-X><C-F>
+    imap ,n <C-N>
+    imap ,a <C-P>
+    vmap ,f :ClangFormat<CR>
+
+    " C-_ maps to C-/ in reality…
+    " In normal mode, also move down ;)
+    nmap <C-_> gccs
+    vmap <C-_> gc
+
+    " File modification
+    nmap <leader>s :w!<CR>
+    nmap <leader>q :q!<CR>
+
+    if (use_tab_bindings == 1)
+        nmap <leader>tn :tabnew<CR>
+        nmap <leader>to :tabonly<CR>
+        nmap <leader>tc :tabclose<CR>
+        nmap <leader>tm :tabmove<CR>
+        nmap <leader>tl :tabnext<CR>
+        nmap <leader>tp :tabprevious<cr>
+    endif
+
+    let g:UltiSnipsExpandTrigger="<C-a>"
+    let g:UltiSnipsJumpForwardTrigger="<C-b>"
+    let g:UltiSnipsJumpBackwardTrigger="<C-z>"
+    let g:UltiSnipsEditSplit="vertical"
+
+    nmap ; :Buffers<CR>
+    nmap <Leader>f :Files<CR>
+    nmap <Leader>gf :GFiles<CR>
+endif
+
+nmap <F2> :call ToggleSpell()<CR>
+nmap <F3> :call DeleteTrailingWS()<CR>
+imap <F5> FIXME(ThomasH, <C-R>=strftime("%d %b %Y")<CR>):
+
+"}
+" Utility functions {
+
+func! DeleteTrailingWS()
+    exe "normal mz"
+    %s/\s\+$//ge
+    exe "normal `z"
+endfunc
+
+" Spell Check
+let b:myLang = 0
+let g:myLangList=["nospell","fr","en_gb"]
+function! ToggleSpell()
+  let b:myLang = b:myLang + 1
+  if b:myLang >= len(g:myLangList)
+      let b:myLang=0
+  endif
+  if b:myLang==0
+    setlocal nospell
+  else
+    exe "setlocal spell spelllang=".get(g:myLangList, b:myLang)
+  endif
+  echo "spell checking language:" g:myLangList[b:myLang]
+endfunction
+
+nmap <silent> <F7> :call ToggleSpell()<CR>
+function! MyStatusLine()
+    let statusline = ""
+    " Filename (F -> full, f -> relative)
+    let statusline .= "%f"
+    " Buffer flags
+    let statusline .= "%(%h%1*%m%*%r%w%) "
+    " File format and type
+    let statusline .= "(%{&ff}%(\/%Y%))"
+    " Left/right separator
+    let statusline .= "%="
+    " Line & column
+    let statusline .= "(%l,%c%V) "
+    " Character under cursor (decimal)
+    let statusline .= "%03.3b "
+    " Character under cursor (hexadecimal)
+    let statusline .= "0x%02.2B "
+    " File progress
+    let statusline .= "| %P/%L"
+    return statusline
+endfunction
+
+" }
+" Per language tweaks {
+function! SetupVHDLConfig()
+    setlocal comments^=:--!
+    setlocal comments^=:--
+    setlocal foldmethod=marker
+    " Fold Doxygen groups
+    setlocal foldmarker=@{,@}
+endfunction
+autocmd FileType vhdl call SetupVHDLConfig()
+
+autocmd FileType make setlocal ts=8 sts=8 sw=8 noexpandtab
+autocmd FileType conf setlocal ts=8 sts=8 sw=8 noexpandtab
+" }
