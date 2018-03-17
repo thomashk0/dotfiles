@@ -34,6 +34,7 @@ SYMLINKS = {
             ('zshrc', Path.home() / '.zshrc')],
     'git': [('gitconfig', Path.home() / '.gitconfig')],
     'tmux': [('tmux.conf', Path.home() / '.tmux.conf')],
+    'nix': [('config.nix', Path.home() / '.nixpkgs/config.nix')]
 }
 
 

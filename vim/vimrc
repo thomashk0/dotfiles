@@ -34,6 +34,7 @@ call plug#begin('~/.vim/plugged')
     " Also supports other languages
     Plug 'rhysd/vim-clang-format', { 'for' : ['c', 'cpp'] }
     Plug 'jceb/vim-orgmode', { 'for' : ['org'] }
+    Plug 'LnL7/vim-nix', { 'for' : ['nix'] }
 
     if (g:use_molokai == 1)
         Plug 'rafi/awesome-vim-colorschemes'
