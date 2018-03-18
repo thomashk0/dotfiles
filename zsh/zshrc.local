@@ -342,6 +342,18 @@ function nix-fetchpkgs {
     nix-env -qaP '*' > $HOME/.cache/nix/pkgs.txt
 }
 
+function peda-init {
+  if [[ -e .gdbinit ]]; then
+      echo -e "there is already a .gdbinit file in the current directory."\
+          "Please remove it, or manually add:\n\n"\
+          "   source ~/peda/peda.py\n"\
+          "in it."
+      return
+  fi
+
+  echo "source ~/.dotfiles/peda/peda.py" >> .gdbinit
+}
+
 # Added by FZF
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 

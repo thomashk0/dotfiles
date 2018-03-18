@@ -34,11 +34,12 @@ SYMLINKS = {
             ('zshrc', Path.home() / '.zshrc')],
     'git': [('gitconfig', Path.home() / '.gitconfig')],
     'tmux': [('tmux.conf', Path.home() / '.tmux.conf')],
-    'nix': [('config.nix', Path.home() / '.nixpkgs/config.nix')]
+    'nix': [('config.nix', Path.home() / '.nixpkgs/config.nix')],
 }
 
 
 def main():
+    ln(Path.cwd(), Path.home() / '.dotfiles')
     setup_vim()
     for app, links in SYMLINKS.items():
         for src, dst in links:
