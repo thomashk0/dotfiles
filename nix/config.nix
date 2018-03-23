@@ -25,6 +25,7 @@ let
   # X11 packages
   desktopPkgs = pkgs: with pkgs; [
     libreoffice
+    inkscape
     vlc
   ];
 in
