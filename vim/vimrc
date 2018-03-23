@@ -23,8 +23,7 @@ call plug#begin('~/.vim/plugged')
     Plug 'christoomey/vim-tmux-navigator'
     Plug 'godlygeek/tabular', { 'for' : ['tex'] }
 
-    let g:fzf_install = 'yes | ./install'
-    Plug 'junegunn/fzf', { 'do': g:fzf_install }
+    Plug 'junegunn/fzf'
     Plug 'junegunn/fzf.vim'
 
     Plug 'tpope/vim-surround'
