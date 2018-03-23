@@ -9,6 +9,7 @@ logging.basicConfig(
         format="[%(levelname)s] %(message)s")
 logger = logging.getLogger('install.py')
 
+
 def realpath(p, **kwargs):
     return str(p.resolve(**kwargs))
 
@@ -36,8 +37,8 @@ def setup_vim():
                 ["curl", "-fLo", str(plug_file), "--create-dirs", VIM_PLUG_URL])
     else:
         logger.warning(
-                f"file {plug_file} already there. Delete it and rerun"
-                "this script if you want to force the update.")
+                f"file {plug_file} already there. Delete it and re-run"
+                " this script if you want to force the update.")
 
     ln(Path('vim') / "vimrc", Path.home() / ".vimrc")
 
@@ -46,14 +47,20 @@ SYMLINKS = {
     'zsh': [('zshrc.local', Path.home() / '.zshrc.local'),
             ('zshrc', Path.home() / '.zshrc')],
     'git': [('gitconfig', Path.home() / '.gitconfig')],
-    'tmux': [('tmux.conf', Path.home() / '.tmux.conf')],
-    'nix': [('config.nix', Path.home() / '.nixpkgs/config.nix')],
+    'tmux': [('tmux.conf', Path.home() / '.tmux.conf')]
 }
+
+
+def setup_nix_config():
+    nix_usr_dir = Path.home() / '.nixpkgs' / 'config.nix'
+    nix_usr_dir.parents[0].mkdir(exist_ok=True)
+    ln(Path.cwd(), nix_usr_dir)
 
 
 def main():
     ln(Path.cwd(), Path.home() / '.dotfiles')
     setup_vim()
+
     for app, links in SYMLINKS.items():
         for src, dst in links:
             ln(Path(app) / src, dst)
