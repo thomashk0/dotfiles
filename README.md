@@ -1,8 +1,14 @@
-# Personal dotfiles collections
+# Personal dotfiles collection
 
 ## Installation
 
-The install scripts requires **Python 3.6+**.
+First, get all git submodules:
+
+```bash
+$ git submodule init --update
+```
+
+Then, run the install script (**warning:** it requires Python 3.6+):
 
 ```bash
 $ ./install.py
@@ -10,7 +16,7 @@ $ ./install.py
 
 ## Update Zsh config
 
-A script fetches the last version from GRML repository.
+A script in `zsh` directory fetches the last version from GRML repository.
 
 ```bash
 $ (cd zsh && ./update.sh)

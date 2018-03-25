@@ -4,7 +4,7 @@ let
     aspell
     aspellDicts.en
     aspellDicts.fr
-    cmake
+    cmakeWithGui
     gnumake
     ninja
     gcc
@@ -13,7 +13,6 @@ let
     nasm
     openjdk
     git
-    gitAndTools.qgit
     python36
     python36Packages.pip
     python36Packages.virtualenv
@@ -26,13 +25,17 @@ let
   desktopPkgs = pkgs: with pkgs; [
     libreoffice
     inkscape
+    graphviz
+    gitg
     vlc
   ];
+
+  version = "1.2";
 in
 {
-  packageOverrides = pkgs: with pkgs; rec {
-    commonPkgs = buildEnv {
-      name = "commonPkgs";
+  packageOverrides = pkgs: rec {
+    common_pkgs = pkgs.buildEnv {
+      name = "common-pkgs-${version}";
       paths = baseDevel pkgs ++ desktopPkgs pkgs;
       meta = {
         description = "Common packages for desktop usage";
