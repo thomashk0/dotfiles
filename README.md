@@ -5,7 +5,7 @@
 First, get all git submodules:
 
 ```bash
-$ git submodule init --update
+$ git submodule update --init
 ```
 
 Then, run the install script (**warning:** it requires Python 3.6+):
