@@ -1,0 +1,25 @@
+name:                mywm
+version:             0.2.7.0
+synopsis:            A simple XMonad configuration
+description:         Please see README.md
+homepage:            http://github.com/thomashk0/tree/master/dotfiles/xmonad/README.md
+license:             BSD3
+license-file:        LICENSE
+author:              Thomas Hiscock
+maintainer:          thomas.hiscock@wanadoo.fr
+copyright:           2015-2018 Thomas Hiscock
+category:            Graphical
+build-type:          Simple
+cabal-version:       >=1.10
+
+executable mywm
+  hs-source-dirs:      src
+  main-is:             Main.hs
+  other-modules:       KeyBindings
+  default-language:    Haskell2010
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N -Wall -O2
+  build-depends:       base >= 4.7 && < 5
+                     , ansi-wl-pprint
+                     , containers
+                     , xmonad
+                     , xmonad-contrib
