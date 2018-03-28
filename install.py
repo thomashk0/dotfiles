@@ -54,12 +54,13 @@ SYMLINKS = {
 def setup_nix_config():
     nix_usr_dir = Path.home() / '.nixpkgs' / 'config.nix'
     nix_usr_dir.parents[0].mkdir(exist_ok=True)
-    ln(Path.cwd(), nix_usr_dir)
+    ln(Path.cwd() / 'nix' / 'config.nix', nix_usr_dir)
 
 
 def main():
     ln(Path.cwd(), Path.home() / '.dotfiles')
     setup_vim()
+    setup_nix_config()
 
     for app, links in SYMLINKS.items():
         for src, dst in links:

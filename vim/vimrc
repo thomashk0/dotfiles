@@ -51,6 +51,7 @@ set nobackup nowb noswapfile
 " Styling
 set nospell
 
+set t_Co=256
 set background=dark
 if (g:use_molokai == 1)
     colorscheme molokai

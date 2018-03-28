@@ -41,6 +41,6 @@ in
         description = "Common packages for desktop usage";
       };
     };
-
+    qt59ct = pkgs.libsForQt59.callPackage <nixpkgs/pkgs/tools/misc/qt5ct> {};
   };
 }
