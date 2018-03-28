@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=XMonad
+Comment=Custom Xmonad
+Type=Application
+Exec=@out@/bin/mywm --replace
+Terminal=false
+Categories=Graphics;
+Keywords=XMonad;
