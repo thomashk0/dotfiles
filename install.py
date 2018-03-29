@@ -53,8 +53,12 @@ SYMLINKS = {
 
 def setup_nix_config():
     nix_usr_dir = Path.home() / '.nixpkgs' / 'config.nix'
+    nix_overlay_dir = Path.home() / '.config' / 'nixpkgs'
+    nix_overlay_dir.mkdir(exist_ok=True)
+
     nix_usr_dir.parents[0].mkdir(exist_ok=True)
     ln(Path.cwd() / 'nix' / 'config.nix', nix_usr_dir)
+    ln(Path.cwd() / 'nix' / 'overlays', nix_overlay_dir / 'overlays')
 
 
 def main():
