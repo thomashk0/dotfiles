@@ -34,6 +34,13 @@ let
 in
 {
   packageOverrides = pkgs: rec {
+    dlang_pkgs = pkgs.buildEnv {
+      name = "dlang-pkgs-1.0.0";
+      paths = with pkgs; [ dmd ldc dub ];
+      meta = {
+        description = "Basic tools for working with the D language";
+      };
+    };
     common_pkgs = pkgs.buildEnv {
       name = "common-pkgs-${version}";
       paths = baseDevel pkgs ++ desktopPkgs pkgs;
