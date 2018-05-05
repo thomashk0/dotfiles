@@ -9,7 +9,7 @@
 
 " Force this option to 0 to disable bepo bindings
 let g:use_bepo_keyboard = 1
-let g:use_molokai = 0
+let g:use_molokai = 1
 " Extra shortcurts for tab management (disabled)
 " TODO: remove ?
 let g:use_tab_bindings = 0
