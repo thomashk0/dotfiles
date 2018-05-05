@@ -5,6 +5,8 @@ let
     aspellDicts.en
     aspellDicts.fr
     cmakeWithGui
+    cabal-install
+    cabal2nix
     gnumake
     ninja
     gcc
@@ -15,39 +17,44 @@ let
     git
     python36
     python36Packages.pip
+    python36Packages.pew
     python36Packages.virtualenv
+    pkgconfig
     imagemagick
     nix-prefetch-scripts
     nix-repl
+    stack
+    unzip
+    valgrind
+    z3
+    zip
   ];
 
   # X11 packages
   desktopPkgs = pkgs: with pkgs; [
+    evince
+    dmenu2
     libreoffice
     inkscape
     graphviz
-    gitg
+    gitAndTools.qgit
+    gtkwave
     vlc
+    xorg.xmessage
+    xterm
   ];
-
-  version = "1.2";
 in
 {
-  packageOverrides = pkgs: rec {
-    dlang_pkgs = pkgs.buildEnv {
-      name = "dlang-pkgs-1.0.0";
-      paths = with pkgs; [ dmd ldc dub ];
-      meta = {
-        description = "Basic tools for working with the D language";
-      };
-    };
-    common_pkgs = pkgs.buildEnv {
-      name = "common-pkgs-${version}";
+  packageOverrides = pkgs: {
+    common_pkgs = pkgs.buildEnv rec {
+      name = "common-pkgs-${meta.version}";
       paths = baseDevel pkgs ++ desktopPkgs pkgs;
       meta = {
+        version = "1.4.0";
         description = "Common packages for desktop usage";
       };
     };
+
     qt59ct = pkgs.libsForQt59.callPackage <nixpkgs/pkgs/tools/misc/qt5ct> {};
   };
 }
