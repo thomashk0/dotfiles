@@ -338,6 +338,11 @@ function nix-search() {
     cat $HOME/.cache/nix/pkgs.txt | fzf
 }
 
+function load-nix() {
+    . $HOME/.nix-profile/etc/profile.d/nix.sh
+}
+
+
 function nix-fetchpkgs {
     nix-env -qaP '*' > $HOME/.cache/nix/pkgs.txt
 }
@@ -351,10 +356,13 @@ function peda-init {
       return
   fi
 
-  echo "source ~/.dotfiles/peda/peda.py" >> .gdbinit
+  echo "source ${HOME}/.dotfiles/peda/peda.py" >> .gdbinit
 }
+
+export PATH="${HOME}/.local/bin:$PATH"
 
 # Added by FZF
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+[ -f $HOME/opt/anaconda3/etc/profile.d/conda.sh ] && $HOME/opt/anaconda3/etc/profile.d/conda.sh
 
 ## END OF FILE #################################################################
