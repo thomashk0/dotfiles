@@ -30,7 +30,6 @@ module KeyBindings(
 
 import           Data.Bits                    ((.&.))
 import qualified Data.Map                     as M
-import           Data.Monoid
 import           Text.PrettyPrint.ANSI.Leijen (Doc, (<$$>), (<+>))
 import qualified Text.PrettyPrint.ANSI.Leijen as PP
 import           XMonad                       hiding ((<+>))

@@ -361,8 +361,12 @@ function peda-init {
 
 export PATH="${HOME}/.local/bin:$PATH"
 
-# Added by FZF
+opt="${HOME}/opt"
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-[ -f $HOME/opt/anaconda3/etc/profile.d/conda.sh ] && $HOME/opt/anaconda3/etc/profile.d/conda.sh
+[ -f ${opt}/anaconda3/etc/profile.d/conda.sh ] && source $HOME/opt/anaconda3/etc/profile.d/conda.sh
+
+export VCPKG_ROOT=${opt}/vcpkg
+alias vcpkg=${VCPKG_ROOT}/vcpkg
+alias julia=${opt}/julia-1.0.1/bin/julia
 
 ## END OF FILE #################################################################

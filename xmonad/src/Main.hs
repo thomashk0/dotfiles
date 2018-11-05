@@ -13,7 +13,6 @@ import           XMonad.Config.Xfce                (xfceConfig, desktopLayoutMod
 import           XMonad.Hooks.SetWMName            (setWMName)
 import           XMonad.Hooks.ManageHelpers        (composeOne, isDialog, (-?>))
 import           XMonad.Layout.Dishes
-import           XMonad.Layout.ShowWName           (showWName)
 import           XMonad.Layout.ThreeColumns
 import           XMonad.Prompt.ConfirmPrompt       (confirmPrompt)
 import           XMonad.Prompt.Input
@@ -26,7 +25,7 @@ import           KeyBindings
 
 -- TODO: Synchronize with cabal version
 version :: (Int, Int)
-version = (2, 7)
+version = (2, 8)
 
 versionStr :: String
 versionStr = "my-xmonad " ++ show major ++ "." ++ show minor
@@ -56,6 +55,8 @@ ceaWhoIsPrompt =
         localDir ".local/share/virtualenvs/tools/bin/ceawhois"
         ++ " --db " ++ localDir "cache/ceawhois/cea-directory.sqlite "
 
+-- Using the KeyBindings module, we define the bindinds and their documentation
+-- at the same time!
 keyBindings :: XConfig Layout -> KeyBindings
 keyBindings conf@XConfig {modMask = modm} = bindings
   where
@@ -142,6 +143,10 @@ main = do
   args <- getArgs
   when ("--replace" `elem` args) replace
   putStrLn $ "Running with config " ++ versionStr
+
+  -- Remap Caps_lock to mod2, the trick is explained here http://lists.suckless.org/dwm/0706/2715.html
+  -- let remapCmd = unlines ["remove Lock = Caps_Lock", "clear mod2", "add Mod2 = Caps_Lock"]
+  -- void $ runProcessWithInput "xmodmap" ["-e", "-"] remapCmd
   launch cfg
   where
     baseCfg = xfceConfig
@@ -150,9 +155,9 @@ main = do
         { terminal = "xterm"
         , borderWidth = 2
         , keys = xMonadKeys . keyBindings
-        , layoutHook = showWName $ desktopLayoutModifiers layouts
+        , layoutHook = desktopLayoutModifiers layouts
         , workspaces = workspacesNames
-        , modMask = mod1Mask
+        , modMask = mod4Mask
         -- The following hook is needed for java GUI applications like Eclipse,
         -- IntelliJ to properly render teir fonts, ...
         , startupHook = startupHook baseCfg <+> setWMName "LG3D"
