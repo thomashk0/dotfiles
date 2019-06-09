@@ -61,10 +61,18 @@ def setup_nix_config():
     ln(Path.cwd() / 'nix' / 'overlays', nix_overlay_dir / 'overlays')
 
 
+def setup_xfce4_term():
+    dst = Path.home() / '.local' / 'share' / 'xfce4' / 'terminal' / 'colorschemes'
+    dst.mkdir(exist_ok=True, parents=True)
+    ln(Path.cwd() / 'xfce4-terminal' / 'base16-monokai.theme',
+        dst / 'base16-monokai.theme')
+
+
 def main():
     ln(Path.cwd(), Path.home() / '.dotfiles')
     setup_vim()
     setup_nix_config()
+    setup_xfce4_term()
 
     for app, links in SYMLINKS.items():
         for src, dst in links:
