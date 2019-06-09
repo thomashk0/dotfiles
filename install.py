@@ -47,7 +47,7 @@ SYMLINKS = {
     'zsh': [('zshrc.local', Path.home() / '.zshrc.local'),
             ('zshrc', Path.home() / '.zshrc')],
     'git': [('gitconfig', Path.home() / '.gitconfig')],
-    'tmux': [('tmux.conf', Path.home() / '.tmux.conf')]
+    'tmux': [('tmux.conf', Path.home() / '.tmux.conf')],
 }
 
 
@@ -73,6 +73,9 @@ def main():
     setup_vim()
     setup_nix_config()
     setup_xfce4_term()
+
+    # FIXME(ThomasH, 09 Jun 2019): use a finer symlink granularity??
+    ln('fish', Path.home() / '.config' / 'fish')
 
     for app, links in SYMLINKS.items():
         for src, dst in links:
