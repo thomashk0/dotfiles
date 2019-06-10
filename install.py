@@ -48,7 +48,7 @@ SYMLINKS = {
             ('zshrc', Path.home() / '.zshrc')],
     'git': [('gitconfig', Path.home() / '.gitconfig')],
     'tmux': [('tmux.conf', Path.home() / '.tmux.conf')],
-}
+    }
 
 
 def setup_nix_config():
@@ -68,14 +68,22 @@ def setup_xfce4_term():
         dst / 'base16-monokai.theme')
 
 
+def setup_fish():
+    src = Path.cwd() / 'fish'
+    dst = Path.home() / '.config' / 'fish'
+    dst.mkdir(exist_ok=True, parents=True)
+    (dst / 'functions').mkdir(exist_ok=True, parents=True)
+    ln(src / 'config.fish',  dst / 'config.fish')
+    ln(src / 'functions' / 'fish_prompt.fish',
+        dst / 'functions' / 'fish_prompt.fish')
+
+
 def main():
     ln(Path.cwd(), Path.home() / '.dotfiles')
     setup_vim()
     setup_nix_config()
     setup_xfce4_term()
-
-    # FIXME(ThomasH, 09 Jun 2019): use a finer symlink granularity??
-    ln('fish', Path.home() / '.config' / 'fish')
+    setup_fish()
 
     for app, links in SYMLINKS.items():
         for src, dst in links:

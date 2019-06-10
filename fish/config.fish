@@ -15,4 +15,10 @@ else
     abbr -a e vim
 end
 
+if test -f /usr/share/autojump/autojump.fish
+    source /usr/share/autojump/autojump.fish
+end
+
 # Prompt is configured in functions/fish_prompt.fish
+
+set fish_greeting
