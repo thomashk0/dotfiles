@@ -7,23 +7,19 @@
 
 " Configuration variables {
 
-" Force this option to 0 to disable bepo bindings
+" Force this option to 0 to disable bepo keyboard bindings
 let g:use_bepo_keyboard = 1
 let g:use_molokai = 1
-" Extra shortcurts for tab management (disabled)
-" TODO: remove ?
-let g:use_tab_bindings = 0
 
 " }
 " General options (Plugins, UI, etc.) {
 
 set nocp
 call plug#begin('~/.vim/plugged')
-    Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
+    " Tab switching in Tmux using the same keybindings as in vim 
     Plug 'christoomey/vim-tmux-navigator'
-    Plug 'godlygeek/tabular', { 'for' : ['tex'] }
 
-    Plug 'junegunn/fzf'
+    Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
     Plug 'junegunn/fzf.vim'
 
     Plug 'tpope/vim-surround'
@@ -32,9 +28,9 @@ call plug#begin('~/.vim/plugged')
 
     " Also supports other languages
     Plug 'rhysd/vim-clang-format', { 'for' : ['c', 'cpp'] }
-    Plug 'jceb/vim-orgmode', { 'for' : ['org'] }
     Plug 'LnL7/vim-nix', { 'for' : ['nix'] }
-    Plug 'JuliaEditorSupport/julia-vim'
+    Plug 'matze/vim-meson', { 'for': ['meson'] }
+    Plug 'dag/vim-fish'
 
     " Experimental
     Plug 'neovimhaskell/haskell-vim', { 'for' : ['haskell'] }
@@ -47,7 +43,6 @@ call plug#end()
 filetype on
 filetype indent on
 filetype plugin on
-
 
 " No backup and swap files
 set nobackup nowb noswapfile
@@ -65,6 +60,7 @@ endif
 
 syntax enable
 set number
+set relativenumber
 set list
 set listchars=tab:›-,trail:.,extends:#,nbsp:.
 set cc=80
@@ -138,30 +134,23 @@ if (g:use_bepo_keyboard == 1)
     vmap <C-_> gc
 
     " File modification
-    nmap <leader>s :w!<CR>
+    nmap <leader>s :w<CR>
     nmap <leader>q :q!<CR>
-
-    if (use_tab_bindings == 1)
-        nmap <leader>tn :tabnew<CR>
-        nmap <leader>to :tabonly<CR>
-        nmap <leader>tc :tabclose<CR>
-        nmap <leader>tm :tabmove<CR>
-        nmap <leader>tl :tabnext<CR>
-        nmap <leader>tp :tabprevious<cr>
-    endif
 
     let g:UltiSnipsExpandTrigger="<C-a>"
     let g:UltiSnipsJumpForwardTrigger="<C-b>"
     let g:UltiSnipsJumpBackwardTrigger="<C-z>"
     let g:UltiSnipsEditSplit="vertical"
 
-    nmap ; :Buffers<CR>
-    nmap <Leader>f :Files<CR>
-    nmap <Leader>gf :GFiles<CR>
+    nmap <leader><leader> :blast<CR>
+    nmap <leader>b :Buffers<CR>
+    nmap <leader>f :Files<CR>
+    nmap <leader>gf :GFiles<CR>
 endif
 
 nmap <F2> :call ToggleSpell()<CR>
 nmap <F3> :call DeleteTrailingWS()<CR>
+nmap <F4> :ClangFormat<CR>
 imap <F5> FIXME(ThomasH, <C-R>=strftime("%d %b %Y")<CR>):
 
 "}
@@ -189,7 +178,6 @@ function! ToggleSpell()
   echo "spell checking language:" g:myLangList[b:myLang]
 endfunction
 
-nmap <silent> <F7> :call ToggleSpell()<CR>
 function! MyStatusLine()
     let statusline = ""
     " Filename (F -> full, f -> relative)
