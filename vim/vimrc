@@ -10,35 +10,39 @@
 " Force this option to 0 to disable bepo keyboard bindings
 let g:use_bepo_keyboard = 1
 let g:use_molokai = 1
+let g:use_plugins = 1
 
 " }
 " General options (Plugins, UI, etc.) {
 
 set nocp
-call plug#begin('~/.vim/plugged')
-    " Tab switching in Tmux using the same keybindings as in vim 
-    Plug 'christoomey/vim-tmux-navigator'
+if (g:use_plugins == 1)
+    call plug#begin('~/.vim/plugged')
+        " Tab switching in Tmux using the same keybindings as in vim
+        Plug 'christoomey/vim-tmux-navigator'
 
-    Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-    Plug 'junegunn/fzf.vim'
+        Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+        Plug 'junegunn/fzf.vim'
 
-    Plug 'tpope/vim-surround'
-    Plug 'tpope/vim-commentary'
-    Plug 'godlygeek/tabular'
+        Plug 'tpope/vim-surround'
+        Plug 'tpope/vim-commentary'
+        Plug 'godlygeek/tabular'
 
-    " Also supports other languages
-    Plug 'rhysd/vim-clang-format', { 'for' : ['c', 'cpp'] }
-    Plug 'LnL7/vim-nix', { 'for' : ['nix'] }
-    Plug 'matze/vim-meson', { 'for': ['meson'] }
-    Plug 'dag/vim-fish'
+        Plug 'rhysd/vim-clang-format', { 'for' : ['c', 'cpp'] }
+        Plug 'sheerun/vim-polyglot'
 
-    " Experimental
-    Plug 'neovimhaskell/haskell-vim', { 'for' : ['haskell'] }
+        " Experimental
+        Plug 'neovimhaskell/haskell-vim', { 'for' : ['haskell'] }
 
-    if (g:use_molokai == 1)
-        Plug 'rafi/awesome-vim-colorschemes'
-    endif
-call plug#end()
+        Plug 'SirVer/ultisnips'
+        Plug 'honza/vim-snippets'
+
+
+        if (g:use_molokai == 1)
+            Plug 'rafi/awesome-vim-colorschemes'
+        endif
+    call plug#end()
+endif
 
 filetype on
 filetype indent on
@@ -145,7 +149,12 @@ if (g:use_bepo_keyboard == 1)
     nmap <leader><leader> :blast<CR>
     nmap <leader>b :Buffers<CR>
     nmap <leader>f :Files<CR>
-    nmap <leader>gf :GFiles<CR>
+    if has('nvim')
+        " temporary fix, the :GFiles commands fail with neovim :(
+        nmap <leader>gf :call fzf#run({'source': 'git ls-files', 'sink': 'e'})<CR>
+    else
+        nmap <leader>gf :GFiles<CR>
+    endif
 endif
 
 nmap <F2> :call ToggleSpell()<CR>
