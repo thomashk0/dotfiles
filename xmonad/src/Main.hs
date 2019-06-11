@@ -157,7 +157,7 @@ main = do
         , keys = xMonadKeys . keyBindings
         , layoutHook = desktopLayoutModifiers layouts
         , workspaces = workspacesNames
-        , modMask = mod4Mask
+        , modMask = mod1Mask
         -- The following hook is needed for java GUI applications like Eclipse,
         -- IntelliJ to properly render teir fonts, ...
         , startupHook = startupHook baseCfg <+> setWMName "LG3D"
