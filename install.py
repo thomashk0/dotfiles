@@ -78,12 +78,19 @@ def setup_fish():
         dst / 'functions' / 'fish_prompt.fish')
 
 
+def setup_nvim():
+    dst = Path.home() / '.config' / 'nvim'
+    dst.mkdir(exist_ok=True, parents=True)
+    ln(Path.cwd() / 'nvim' / 'init.vim', dst / 'init.vim')
+
+
 def main():
     ln(Path.cwd(), Path.home() / '.dotfiles')
     setup_vim()
     setup_nix_config()
     setup_xfce4_term()
     setup_fish()
+    setup_nvim()
 
     for app, links in SYMLINKS.items():
         for src, dst in links:
