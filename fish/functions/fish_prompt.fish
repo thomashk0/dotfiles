@@ -28,5 +28,5 @@ function fish_prompt
   _prompt_last_status $last_status
   echo -ne (prompt_pwd)
   __fish_git_prompt " (%s)"
-  echo -ne "\n"(set_color brblue)(whoami)(set_color normal)"@"(prompt_hostname)" % "
+  echo -ne "\n"(set_color brblue)(whoami)(set_color normal)"@"(hostname)" % "
 end
