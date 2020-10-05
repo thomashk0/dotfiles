@@ -24,7 +24,9 @@ alias h="history"
 alias hg="history -1000 | grep -i"
 alias ,="cd .."
 alias m="less"
-
+alias o="xdg-open"
+alias g="g"
+alias e="vim"
 
 # Modules
 autoload -U compinit colors vcs_info
