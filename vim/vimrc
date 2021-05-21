@@ -9,7 +9,7 @@
 
 " Force this option to 0 to disable bepo keyboard bindings
 let g:use_bepo_keyboard = 1
-let g:use_molokai = 1
+let g:use_extra_colorschemes = 1
 let g:use_plugins = 1
 
 " }
@@ -31,14 +31,12 @@ if (g:use_plugins == 1)
         Plug 'rhysd/vim-clang-format', { 'for' : ['c', 'cpp'] }
         Plug 'sheerun/vim-polyglot'
 
-        " Experimental
-        Plug 'neovimhaskell/haskell-vim', { 'for' : ['haskell'] }
+        Plug 'jceb/vim-orgmode', { 'for' : ['org'] }
 
         Plug 'SirVer/ultisnips'
         Plug 'honza/vim-snippets'
 
-
-        if (g:use_molokai == 1)
+        if (g:use_extra_colorschemes == 1)
             Plug 'rafi/awesome-vim-colorschemes'
         endif
     call plug#end()
@@ -56,8 +54,8 @@ set nospell
 
 set t_Co=256
 set background=dark
-if (g:use_molokai == 1)
-    colorscheme molokai
+if (g:use_extra_colorschemes == 1)
+    colorscheme apprentice
 else
     colorscheme default
 endif
@@ -85,7 +83,10 @@ set nowrap
 set ignorecase
 set hlsearch            " Highlight search results
 set incsearch           " Search while typing the search string
-set path+=**
+" by default, make vim only complete in current directory
+set path=.
+" To support glob-like search use:
+" set path+=**
 set wildmenu
 
 " }
@@ -93,6 +94,7 @@ set wildmenu
 
 " Leader is set as space
 let mapleader = " "
+let maplocalleader = ","
 
 set backspace=indent,eol,start
 set whichwrap+=<,>,h,l
@@ -221,4 +223,6 @@ autocmd FileType vhdl call SetupVHDLConfig()
 
 autocmd FileType make setlocal ts=8 sts=8 sw=8 noexpandtab
 autocmd FileType conf setlocal ts=8 sts=8 sw=8 noexpandtab
+
+" Orgmode
 " }
