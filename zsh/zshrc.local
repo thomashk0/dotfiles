@@ -31,11 +31,11 @@ if [ -r ~/.zshrc -a -r ~/.zshrc.global -a ! -r ~/.zshrc.local ] ; then
 fi
 
 ## Settings for umask
-#if (( EUID == 0 )); then
-#    umask 002
-#else
-#    umask 022
-#fi
+if (( EUID == 0 )); then
+    umask 002
+else
+    umask 022
+fi
 
 ## Now, we'll give a few examples of what you might want to use in your
 ## .zshrc.local file (just copy'n'paste and uncomment it there):
@@ -359,14 +359,24 @@ function peda-init {
   echo "source ${HOME}/.dotfiles/peda/peda.py" >> .gdbinit
 }
 
-export PATH="${HOME}/.local/bin:$PATH"
+function rv {
+    export PATH="${HOME}/x-tools/riscv32-unknown-elf/bin:$PATH"
+}
 
-opt="${HOME}/opt"
+function clang-dev {
+    export PATH="${HOME}/dev/work/sdk/LLVM-10.0.0svn-Linux/bin:$PATH"
+    export CLANG="${HOME}/dev/work/sdk/LLVM-10.0.0svn-Linux/bin/clang"
+}
+
+export PATH="${HOME}/.local/bin:${HOME}/.cargo/bin:$PATH"
+
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-[ -f ${opt}/anaconda3/etc/profile.d/conda.sh ] && source $HOME/opt/anaconda3/etc/profile.d/conda.sh
 
-export VCPKG_ROOT=${opt}/vcpkg
-alias vcpkg=${VCPKG_ROOT}/vcpkg
-alias julia=${opt}/julia-1.0.1/bin/julia
+# Use GPG Agent for SSH, this is required for using Yubikey.
+# IMPORTANT: I often need to issue the command:
+#   $ gpg-connect-agent updatestartuptty /bye
+export GPG_TTY="$(tty)"
+export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+gpgconf --launch gpg-agent
 
 ## END OF FILE #################################################################
