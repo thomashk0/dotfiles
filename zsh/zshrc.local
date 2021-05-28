@@ -370,7 +370,10 @@ function clang-dev {
 
 export PATH="${HOME}/.local/bin:${HOME}/.cargo/bin:$PATH"
 
+# Enable FZF
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# Enable zoxide (autojump-like directory navigation)
+eval "$(zoxide init zsh)"
 
 # Use GPG Agent for SSH, this is required for using Yubikey.
 # IMPORTANT: I often need to issue the command:
