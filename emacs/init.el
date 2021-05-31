@@ -42,6 +42,7 @@
 
 ;; This key binding is not used on vanilla orgmode
 (global-set-key (kbd "C-c c") 'org-capture)
+(global-set-key (kbd "C-c a") 'org-agenda)
 
 ;; We don't want org-mode to insert manual indentation.
 (setq org-adapt-indentation nil)
@@ -120,7 +121,8 @@
                       ("idea" . ?i)
                       ("project" . ?p)
                       ;; Topic
-                      ("desktop" . ?d)))
+                      ("desktop" . ?d)
+                      ("hot". ?h))
 
 (setq org-log-into-drawer t)
 (setq org-agenda-files '("~/Documents/Org/main.org"))
@@ -135,6 +137,30 @@
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t)))
+
+(setq org-agenda-custom-commands
+      '(("g" "Get Things Done (GTD)"
+         ((agenda ""
+                  ((org-agenda-skip-function
+                    '(org-agenda-skip-entry-if 'deadline))
+                   (org-deadline-warning-days 0)))
+          (todo "NEXT"
+                ((org-agenda-skip-function
+                  '(org-agenda-skip-entry-if 'deadline))
+                 (org-agenda-prefix-format "  %i %-12:c [%e] ")
+                 (org-agenda-overriding-header "\nTasks\n")))
+          (agenda nil
+                  ((org-agenda-entry-types '(:deadline))
+                   (org-agenda-format-date "")
+                   (org-deadline-warning-days 7)
+                   (org-agenda-skip-function
+                    '(org-agenda-skip-entry-if 'notregexp "\\* NEXT"))
+                   (org-agenda-overriding-header "\nDeadlines")))
+          (tags-todo "inbox"
+                     ((org-agenda-prefix-format "  %?-12t% s")
+                      (org-agenda-overriding-header "\nInbox\n")))
+          (tags "CLOSED>=\"<today>\""
+                ((org-agenda-overriding-header "\nCompleted today\n")))))))
 
 (org-babel-do-load-languages
    'org-babel-load-languages '((C . t)
