@@ -7,16 +7,17 @@ import           System.Exit                       (exitSuccess)
 import           XMonad
 import           XMonad.Actions.CycleWS            (nextScreen, shiftNextScreen)
 import qualified XMonad.Actions.FindEmptyWorkspace as A
-import           XMonad.Actions.Search             (google, promptSearch,
-                                                    scholar, youtube)
+import           XMonad.Actions.Search             (google, promptSearch, scholar)
 import           XMonad.Config.Xfce                (xfceConfig, desktopLayoutModifiers)
 import           XMonad.Hooks.SetWMName            (setWMName)
 import           XMonad.Hooks.ManageHelpers        (composeOne, isDialog, (-?>))
 import           XMonad.Layout.Dishes
 import           XMonad.Layout.ThreeColumns
+import           XMonad.Prompt                     (XPConfig(..))
 import           XMonad.Prompt.ConfirmPrompt       (confirmPrompt)
 import           XMonad.Prompt.Input
 import           XMonad.Prompt.Man
+import           XMonad.Prompt.Pass                (passPrompt)
 import qualified XMonad.StackSet                   as W
 import           XMonad.Util.Replace               (replace)
 import           XMonad.Util.Run                   (runInTerm, safeSpawn)
@@ -25,11 +26,14 @@ import           KeyBindings
 
 -- TODO: Synchronize with cabal version
 version :: (Int, Int)
-version = (2, 8)
+version = (2, 9)
 
 versionStr :: String
 versionStr = "my-xmonad " ++ show major ++ "." ++ show minor
   where (major, minor) = version
+
+promptCfg:: XPConfig
+promptCfg = def { font = "xft:Ubuntu Mono Regular-10" }
 
 workspacesNames :: [String]
 workspacesNames = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
@@ -46,7 +50,7 @@ dmenuCmd = "dmenu_run -b"
 
 ceaWhoIsPrompt :: X ()
 ceaWhoIsPrompt =
-    inputPrompt def "ceawhois" ?+ \args ->
+    inputPrompt promptCfg "ceawhois" ?+ \args ->
       runInTerm "" (quoted (cmd ++ args ++ " | less"))
     where
       quoted s = "\"" ++ s ++ "\""
@@ -92,17 +96,17 @@ keyBindings conf@XConfig {modMask = modm} = bindings
       , section "interactions"
           [ (modm .|. shiftMask, xK_c) -=> kill <?> "kill current window"
           , (modm, xK_q) -=> restartWM <?> "restart XMonad (ask confirmation)"
-          , (modm .|. shiftMask, xK_q) -=> confirmPrompt def "exit XMonad ?" (liftIO exitSuccess) <?> "leave XMonad (ask confirmation)"
+          , (modm .|. shiftMask, xK_q) -=> confirmPrompt promptCfg "exit XMonad ?" (liftIO exitSuccess) <?> "leave XMonad (ask confirmation)"
           , (modm, xK_h) -=> showHelp <?> "check & show keybindings"
           ]
       , section "applications"
           [ (modm, xK_b) -=> spawn "xfce4-terminal -e zsh" <?> "start xfce4-terminal"
           , (modm, xK_d) -=> spawn dmenuCmd <?> "spawn dmenu"
           , (modm, xK_o) -=> ceaWhoIsPrompt <?> "prompt for ceawhois"
-          , (modm, xK_f) -=> manPrompt def <?> "man prompt"
-          , (modm, xK_y) -=> promptSearch def google <?> "google prompt"
-          , (modm .|. shiftMask, xK_y) -=> promptSearch def scholar <?> "scholar prompt"
-          , (modm, xK_x) -=> promptSearch def youtube <?> "youtube prompt"
+          , (modm, xK_f) -=> manPrompt promptCfg <?> "man prompt"
+          , (modm, xK_y) -=> promptSearch promptCfg google <?> "google prompt"
+          , (modm .|. shiftMask, xK_y) -=> promptSearch promptCfg scholar <?> "scholar prompt"
+          , (modm, xK_x) -=> passPrompt promptCfg <?> "copy password to clipboard prompt"
           ]
       ]
     helpMsg = show bindings
@@ -120,7 +124,7 @@ checkBindings bindings =
         ["There are duplicates in your XMonad keybindings", show errMsg]
 
 restartWM :: X ()
-restartWM = confirmPrompt def "restart XMonad?" $ do
+restartWM = confirmPrompt promptCfg "restart XMonad?" $ do
   exePath <- liftIO getExecutablePath
   restart exePath True
 
