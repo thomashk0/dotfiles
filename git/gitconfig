@@ -4,6 +4,7 @@
 [user]
     email = thomashk000@gmail.com
     name = Thomas Hiscock
+    signingkey = 0xE81FE4D2D9883D92
 
 [color]
     ui = true
