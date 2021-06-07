@@ -10,11 +10,17 @@
 ;;     curl https://sanemacs.com/sanemacs.el > ~/.emacs.d/sanemacs.el
 (load "~/.emacs.d/sanemacs.el" nil t)
 
+;; 0. Extra dependencies
+(require 'seq)
+
 
 ;; 1. General Settings
 
 ;; Automatic reload of files if modified
 (global-auto-revert-mode t)
+
+;; Always follow symlinks
+(setq vc-follow-symlinks t)
 
 ;; Increasing font-size quickly
 (define-key global-map (kbd "C-+") 'text-scale-increase)
@@ -39,7 +45,10 @@
 
 ;; Root of org-related stuff (must be the same on all my computers).
 (setq org-directory "~/Documents/Org")
-(require 'seq)
+(defun custom/org-path (p)
+  "Create absolute path for a file located in org-directory"
+  (concat org-directory "/" p))
+
 (setq custom/org-files-all
       '("inbox.org"
         "projects.org"
@@ -47,15 +56,18 @@
         "work_projects.org"))
 (setq custom/org-files-available
       (seq-filter 'file-exists-p
-                  (seq-map (lambda (x) (concat org-directory "/" x))
+                  (seq-map (lambda (x) (expand-file-name (concat org-directory "/" x)))
                            custom/org-files-all)))
-;; Check if I am at work (based on the number of agenda files available...
+
+;; Check if I am at work. Several files change depending on where I am.
 (setq custom/org-at-work
-      (equal (seq-length custom/org-files-available)
-             (seq-length custom/org-files-all)))
-(defun th/org-path (p)
-  "Create absolute path for a file located in org-directory"
-  (concat org-directory))
+      (file-exists-p (custom/org-path "work_inbox.org")))
+
+;; Generic path
+(setq custom/org-inbox
+      (custom/org-path (if custom/org-at-work "work_inbox.org" "inbox.org")))
+(setq custom/org-projects
+      (custom/org-path (if custom/org-at-work "work_projects.org" "projects.org")))
 
 ;; This key binding is not used on vanilla orgmode
 (global-set-key (kbd "C-c c") 'org-capture)
@@ -75,7 +87,7 @@
 ;; Use org-ref for quick referencing.
 (use-package org-ref
     :custom
-    (org-ref-default-bibliography "~/Documents/Org/zotero.bib"))
+    (org-ref-default-bibliography (custom/org-path "zotero.bib")))
 ;; Light alternative to org-ref, but I don't know how to install it :(
 ;; (require 'ox-bibtex)
 
@@ -86,7 +98,7 @@
       :hook
       (after-init . org-roam-mode)
       :custom
-      (org-roam-directory (file-truename "~/Documents/Org/notes"))
+      (org-roam-directory (file-truename (custom/org-path "notes")))
       :bind (:map org-roam-mode-map
               (("C-c n l" . org-roam)
                ("C-c n f" . org-roam-find-file)
@@ -131,34 +143,39 @@
         ("DONE" . (:foreground "forest green" :weight bold))
         ("CANCELLED" . (:foreground "red" :weight bold))))
 
-(setq org-tag-alist '((:startgroup . nil)
-                      ("@work" . ?w) ("@home" . ?h)
-                      (:endgroup . nil)
-                      ("inbox" . ?b)
-                      ;; Content type
-                      ("tip" . ?t)
-                      ("review" . ?r)
-                      ("note" . ?n)
-                      ("idea" . ?i)
-                      ("project" . ?p)
-                      ;; Topic
-                      ("desktop" . ?d)
-                      ("hot". ?h)))
+(setq org-tag-alist
+      '((:startgroup . nil)
+        ("@work" . ?w) ("@home" . ?h)
+        (:endgroup . nil)
+        ("inbox" . ?b)
+        ;; Content type
+        ("tip" . ?t)
+        ("review" . ?r)
+        ("note" . ?n)
+        ("idea" . ?i)
+        ("project" . ?p)
+        ;; Topic
+        ("desktop" . ?d)
+        ("hot". ?o)))
 
 (setq org-log-into-drawer t)
-(setq org-agenda-files '("work_inbox.org" "work_projects.org"))
+(setq org-agenda-files custom/org-files-available)
 ;; TODO: update with correct files? maybe add a regexp to keep
 ;; interesting targets only...
-(setq org-refile-targets '(("work_projects.org" :maxlevel . 2)))
+(setq org-refile-targets
+      `((,custom/org-projects :regexp . "\\(?:Tasks?\\)")
+        ;; Experimental, see if the tag approach is ok
+        ;; (,custom/org-projects :maxlevel . 2))
+      ))
 (setq org-refile-use-outline-path 'file)
 (setq org-outline-path-complete-in-steps nil)
 
-;; Where templates are stored.
-(setq org-default-notes-file (concat org-directory "/main.org"))
+;; Our capture templates all have a destination file. We do not need a fallback location.
+;; (setq org-default-notes-file (concat org-directory "/main.org"))
 
 (setq org-capture-templates
-      '(
-        ("t" "Todo" entry (file "~/Documents/Org/work_inbox.org")
+      `(
+        ("t" "Todo" entry (file ,custom/org-inbox)
          "* TODO %?
 :PROPERTIES:
 :CREATED:  %U
