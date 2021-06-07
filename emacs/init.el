@@ -39,6 +39,23 @@
 
 ;; Root of org-related stuff (must be the same on all my computers).
 (setq org-directory "~/Documents/Org")
+(require 'seq)
+(setq custom/org-files-all
+      '("inbox.org"
+        "projects.org"
+        "work_inbox.org"
+        "work_projects.org"))
+(setq custom/org-files-available
+      (seq-filter 'file-exists-p
+                  (seq-map (lambda (x) (concat org-directory "/" x))
+                           custom/org-files-all)))
+;; Check if I am at work (based on the number of agenda files available...
+(setq custom/org-at-work
+      (equal (seq-length custom/org-files-available)
+             (seq-length custom/org-files-all)))
+(defun th/org-path (p)
+  "Create absolute path for a file located in org-directory"
+  (concat org-directory))
 
 ;; This key binding is not used on vanilla orgmode
 (global-set-key (kbd "C-c c") 'org-capture)
@@ -97,7 +114,11 @@
                ("\\paragraph{%s}" . "\\paragraph*{%s}")
                ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 
-
+(setq org-global-properties
+      '(("Effort_ALL" . "0 0:05 0:10 0:15 0:30 0:45 1:00 2:00 4:00")))
+;; Set global Column View format
+(setq org-columns-default-format '"%38ITEM(Details) %TAGS(Context) %7TODO(To Do) %5Effort(Time){:} %6CLOCKSUM(Clock)")
+(setq org-log-done 'time)
 
 ;; Keywords, to support GTD-style task managment.
 (setq org-todo-keywords
@@ -122,20 +143,25 @@
                       ("project" . ?p)
                       ;; Topic
                       ("desktop" . ?d)
-                      ("hot". ?h))
+                      ("hot". ?h)))
 
 (setq org-log-into-drawer t)
-(setq org-agenda-files '("~/Documents/Org/main.org"))
+(setq org-agenda-files '("work_inbox.org" "work_projects.org"))
+;; TODO: update with correct files? maybe add a regexp to keep
+;; interesting targets only...
+(setq org-refile-targets '(("work_projects.org" :maxlevel . 2)))
+(setq org-refile-use-outline-path 'file)
+(setq org-outline-path-complete-in-steps nil)
 
 ;; Where templates are stored.
 (setq org-default-notes-file (concat org-directory "/main.org"))
 
 (setq org-capture-templates
       '(
-        ("t" "Todo" entry (file+headline "~/Documents/Org/main.org" "Inbox")
+        ("t" "Todo" entry (file "~/Documents/Org/work_inbox.org")
          "* TODO %?
 :PROPERTIES:
-:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:CREATED:  %U
 :END:" :prepend t)))
 
 (setq org-agenda-custom-commands
