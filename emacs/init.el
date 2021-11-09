@@ -13,7 +13,6 @@
 ;; 0. Extra dependencies
 (require 'seq)
 
-
 ;; 1. General Settings
 
 ;; Automatic reload of files if modified
@@ -39,7 +38,10 @@
 (use-package helm)
 (require 'helm-config)
 (helm-mode 1)
-
+(define-key global-map (kbd "M-x") 'helm-M-x)
+(define-key global-map (kbd "C-x C-f") 'helm-find-files)
+(define-key global-map (kbd "M-y") 'helm-show-kill-ring)
+(define-key global-map (kbd "C-x b") 'helm-mini)
 
 ;; 2. Org-mode customizations
 
@@ -81,7 +83,6 @@
 
 ;; Optional: add visual line wrapping. However, this doesn't play well
 ;; with 1 line/sentence writing style... I opted for "M-q all the time"!
-
 ;; (add-hook 'org-mode-hook 'visual-line-mode)
 
 ;; Use org-ref for quick referencing.
@@ -92,7 +93,6 @@
 ;; (require 'ox-bibtex)
 
 ;; Zettlekasen-style notes with org-mode.
-;; WARN: This package is currently under test
 (use-package org-roam
       :ensure t
       :hook
@@ -207,7 +207,8 @@
 
 (org-babel-do-load-languages
    'org-babel-load-languages '((C . t)
-                               (python . t)))
+                               (python . t)
+                               (scheme . t)))
 
 ;; Don't prompt for evaluating src blocks
 (setq org-confirm-babel-evaluate nil)
@@ -215,3 +216,27 @@
 ;; Latexmk is a more robust option for building PDF (especially with references).
 ;; It handles the repeated calls to pdflatex and friends for you.
 (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
+
+
+;; 3. Mu4e (experimental)
+(require 'mu4e)
+
+(setq mu4e-contexts
+      `( ,(make-mu4e-context
+           :name "Gmail"
+           :enter-func (lambda () (mu4e-message "Entering thomashk000 Gmail"))
+           :leave-func (lambda () (mu4e-message "Leaving thomashk000 Gmail"))
+           :match-func (lambda (msg) (when msg
+                                       (string-prefix-p "/thomashk000-gmail" (mu4e-message-field msg :maildir))))
+           :vars '((mu4e-trash-folder . "/thomashk000-gmail/[Gmail].Trash")
+                   (mu4e-refile-folder . "/thomashk000-gmail/[Gmail].Archive")
+                   (mu4e-sent-folder . "/thomashk000-gmail/[Gmail].Sent Mail")
+                   (mu4e-drafts-folder . "/thomashk000-gmail/[Gmail].Drafts")
+                   (user-mail-address . "thomashk000@gmail.com")
+                   (user-full-name . "Thomas Hiscock")))))
+(add-to-list 'mu4e-view-actions
+             '("View in Browser" . mu4e-action-view-in-browser) t)
+(setq mu4e-view-show-addresses 't)
+
+;; 4. Scheme
+(use-package geiser-guile)
