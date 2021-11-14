@@ -1,0 +1,427 @@
+#+TITLE: Literate Emacs Configuration
+#+PROPERTY: header-args :tangle tangled_init.el
+#+TAGS: keys confvar
+
+* Overview
+
+This is my =init.el= emacs configuration, written in litterate style
+using Org-mode.
+
+A few conventions:
+- Sections tagged with =keys= contain key bindings.
+- Sections with =confvar= contains some tunable options (e.g., special
+  directories).
+
+** Usage
+
+There are two options to use this configuration.
+
+*** Option 1: Generate a =init.el= File
+
+Code blocks from this file can be extracted into a single Emacs Lisp
+file, by running =M-x org-babel-tangle=. This file can then be copied
+(or symlinked) at =~/.emacs.d/init.el=.
+
+*** Option 2: Load Directly from =init.el=
+
+Another option, is to load directly this file from the =init.el=. To
+this, first create a symlink to this file in =~/.emacs.d/=.  Then,
+create a =init.el= with the following content:
+
+#+begin_src emacs-lisp :tangle no
+  (org-babel-load-file
+   (expand-file-name
+    "init.org"
+    user-emacs-directory))
+#+end_src
+
+* General Settings
+** Performance Tuning
+
+#+begin_src emacs-lisp
+  (setq gc-cons-threshold 100000000)
+  (setq read-process-output-max (* 1024 1024))
+  (add-hook 'after-init-hook #'(lambda ()
+                                 ;; restore after startup
+                                 (setq gc-cons-threshold 800000)))
+#+end_src
+
+** User Interface Improvements
+
+Theme:
+#+begin_src emacs-lisp
+  (load-theme 'leuven)
+#+end_src
+
+#+RESULTS:
+: t
+
+Font (for now, I keep with the default):
+#+begin_src emacs-lisp :tangle no
+  (set-face-attribute 'default nil :font "agave Nerd Font r" :height 280)
+#+end_src
+
+  By default, we hide all menu and status bars.
+
+#+begin_src emacs-lisp
+    (if (fboundp 'menu-bar-mode)
+        (menu-bar-mode -1))
+    (if (fboundp 'tool-bar-mode)
+        (tool-bar-mode -1))
+    (if (fboundp 'scroll-bar-mode)
+        (scroll-bar-mode -1))
+#+end_src
+
+Various customization (extracted from [[https://sanemacs.com/][Sanemacs]]):
+
+#+begin_src emacs-lisp
+  (setq-default cursor-type 'bar)           ; Line-style cursor similar to other text editors
+  (setq inhibit-startup-screen t)           ; Disable startup screen
+  (setq initial-scratch-message "")         ; Make *scratch* buffer blank
+  (setq-default frame-title-format '("%b")) ; Make window title the buffer name
+  (setq ring-bell-function 'ignore)         ; Disable bell sound
+  (fset 'yes-or-no-p 'y-or-n-p)             ; y-or-n-p makes answering questions faster
+  (show-paren-mode 1)                       ; Show closing parens by default
+  (setq linum-format "%4d ")                ; Line number format
+  (delete-selection-mode 1)                 ; Selected text will be overwritten when you start typing
+  (global-auto-revert-mode t)               ; Auto-update buffer if file has changed on disk
+#+end_src
+
+Display line numbers in programming modes.
+
+#+begin_src emacs-lisp
+  (add-hook 'prog-mode-hook
+            (if (and (fboundp 'display-line-numbers-mode) (display-graphic-p))
+                #'display-line-numbers-mode
+              #'linum-mode))
+#+end_src
+
+Always follow symbolic link (without asking):
+
+#+begin_src emacs-lisp
+(setq vc-follow-symlinks t)
+#+end_src
+
+Do not ask for reloading files.
+
+#+begin_src emacs-lisp
+(global-auto-revert-mode t)
+#+end_src
+
+** Move =custom-set-variables= to =custom.el=                       :confvar:
+
+We offload the custom-set-variables to a separate file.
+This keeps =init.el= neater and you have the option to gitignore the =custom.el= file.
+
+#+begin_src emacs-lisp
+  (setq custom-file "~/.emacs.d/custom.el")
+  (unless (file-exists-p custom-file)
+    (write-region "" nil custom-file))
+  ;;; Load custom file. Don't hide errors. Hide success message
+  (load custom-file nil t)
+#+end_src
+
+** Put Emacs auto-save and backup files to =/tmp/= or =C:/Temp/=
+
+#+begin_src emacs-lisp
+  (defconst emacs-tmp-dir (expand-file-name (format "emacs%d" (user-uid)) temporary-file-directory))
+  (setq
+   backup-by-copying t                                        ; Avoid symlinks
+   delete-old-versions t
+   kept-new-versions 6
+   kept-old-versions 2
+   version-control t
+   auto-save-list-file-prefix emacs-tmp-dir
+   auto-save-file-name-transforms `((".*" ,emacs-tmp-dir t))  ; Change autosave dir to tmp
+   backup-directory-alist `((".*" . ,emacs-tmp-dir)))
+
+  ;;; Lockfiles unfortunately cause more pain than benefit
+  (setq create-lockfiles nil)
+#+end_src
+
+** Common Editor Settings
+
+By default, disable tabs, indent with 4 spaces. We also highlight
+trailing whitespaces.
+
+#+begin_src emacs-lisp
+  (setq-default tab-width 4
+                indent-tabs-mode nil)
+  (setq whitespace-style '(trailing tabs tab-mark))
+  (global-whitespace-mode t)
+#+end_src
+
+** Common Key Bindings                                                 :keys:
+
+#+begin_src emacs-lisp
+  (global-set-key [mouse-3] 'mouse-popup-menubar-stuff)          ; Gives right-click a context menu
+  (global-set-key (kbd "C->") 'indent-rigidly-right-to-tab-stop) ; Indent selection by one tab length
+  (global-set-key (kbd "C-<") 'indent-rigidly-left-to-tab-stop)  ; De-indent selection by one tab length
+#+end_src
+
+#+begin_src emacs-lisp
+  (define-key global-map (kbd "C-+") 'text-scale-increase)
+  (define-key global-map (kbd "C--") 'text-scale-decrease)
+#+end_src
+
+** Setup =package.el= and =use-package=
+
+#+begin_src emacs-lisp
+  ;;; Setup package.el
+  (require 'package)
+  (setq package-enable-at-startup nil)
+  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+  (unless package--initialized (package-initialize))
+
+  ;;; Setup use-package
+  (unless (package-installed-p 'use-package)
+    (package-refresh-contents)
+    (package-install 'use-package))
+  (eval-when-compile
+    (require 'use-package))
+  (setq use-package-always-ensure t)
+#+end_src
+
+* Custom Helpers
+** =reload-config=
+
+#+begin_src emacs-lisp
+  (defun reload-config ()
+    (interactive)
+    (load-file (concat user-emacs-directory "init.el")))
+#+end_src
+
+* Org-mode
+** Special Paths                                                    :confvar:
+
+All my Org files are placed in a git-managed directory
+(=~/Documents/Org=). This value can be changed, but usually I just
+create a symlink.
+
+#+begin_src emacs-lisp
+  (setq org-directory "~/Documents/Org")
+#+end_src
+
+As we will refer frequently to files in the =org-directory=, we
+introduce an helper (=custom/org-path=) to reference those files.
+
+#+begin_src emacs-lisp
+  (defun custom/org-path (p)
+    "Create absolute path for a file located in org-directory"
+    (concat org-directory "/" p))
+#+end_src
+
+I want my org-mode configuration to work both at home and at
+work. Files used at work are prefixed with =work_=. If those are
+found, we modify some Org-mode variables accordingly.
+
+#+begin_src emacs-lisp
+  ;; We need the seq package for some sequence manipulations bellow.
+  (require 'seq)
+
+  ;; The full list of files that might be present in org-directory.
+  (setq custom/org-files-all
+        '("inbox.org"
+          "projects.org"
+          "work_inbox.org"
+          "work_projects.org"))
+
+  (setq custom/org-files-available
+        (seq-filter 'file-exists-p
+                    (seq-map (lambda (x) (expand-file-name (concat org-directory "/" x)))
+                             custom/org-files-all)))
+
+  ;; Check if we are at work or at home (i.e., presence of a "work_inbox.org" file).
+  (setq custom/org-at-work
+        (file-exists-p (custom/org-path "work_inbox.org")))
+
+  ;; Build path to special org-mode files.
+  (setq custom/org-inbox
+        (custom/org-path (if custom/org-at-work "work_inbox.org" "inbox.org")))
+  (setq custom/org-projects
+        (custom/org-path (if custom/org-at-work "work_projects.org" "projects.org")))
+
+  (setq org-agenda-files custom/org-files-available)
+#+end_src
+
+** Style
+
+#+begin_src emacs-lisp
+  ;; We don't want org-mode to insert manual indentation.
+  (setq org-adapt-indentation nil)
+
+  ;; Show only overview when opening new files
+  (setq org-startup-folded t)
+#+end_src
+
+An other possible style customization is visual line wrapping. However, this doesn't play well with 1 line/sentence writing style...
+I opted for "M-q all the time"! You can enable it with =(add-hook 'org-mode-hook 'visual-line-mode)=.
+
+** Keywords and Tags
+
+Note: those are still subject to change (in particular the tags).
+
+#+begin_src emacs-lisp
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "NEXT(n!)" "HOLD(h!@)" "MAYBE(m!)" "|" "DONE(d!)" "CANCELLED(c@)")))
+  (setq org-todo-keyword-faces
+        '(("TODO" . (:foreground "red" :weight bold))
+          ("NEXT" . (:foreground "purple" :weight bold))
+          ("HOLD" . (:foreground "blue" :weight bold))
+          ("MAYBE" . (:foreground "dark orange" :weight bold))
+          ("DONE" . (:foreground "forest green" :weight bold))
+          ("CANCELLED" . (:foreground "red" :weight bold))))
+
+  (setq org-tag-alist
+        '((:startgroup . nil)
+          ("@work" . ?w) ("@home" . ?h)
+          (:endgroup . nil)
+          ("inbox" . ?b)
+          ;; Content type
+          ("tip" . ?t)
+          ("review" . ?r)
+          ("note" . ?n)
+          ("idea" . ?i)
+          ("project" . ?p)
+          ;; Topic
+          ("desktop" . ?d)
+          ("hot". ?o)))
+#+end_src
+
+** Capture Templates and Refile
+
+#+begin_src emacs-lisp
+  (setq org-capture-templates
+      `(
+        ("t" "Todo" entry (file ,custom/org-inbox)
+         "* TODO %?
+:PROPERTIES:
+:CREATED:  %U
+:END:" :prepend t)))
+#+end_src
+
+We refile to the =project.org= file (or =work_project.org= if at work).
+
+#+begin_src emacs-lisp
+  (setq org-refile-targets
+      `((,custom/org-projects :regexp . "\\(?:Tasks?\\)")
+        ;; Experimental, see if the tag approach is ok
+        ;; (,custom/org-projects :maxlevel . 2))
+      ))
+  (setq org-refile-use-outline-path 'file)
+  (setq org-outline-path-complete-in-steps nil)
+#+end_src
+
+** Effort Tracking
+
+#+begin_src emacs-lisp
+  (setq org-global-properties
+      '(("Effort_ALL" . "0 0:05 0:10 0:15 0:30 0:45 1:00 2:00 4:00")))
+  (setq org-log-done 'time)
+  (setq org-log-into-drawer t)
+#+end_src
+
+** Babel
+
+#+begin_src emacs-lisp
+  (org-babel-do-load-languages
+   'org-babel-load-languages '((emacs-lisp . t)
+                               (C . t)
+                               (python . t)
+                               (scheme . t)))
+
+  ;; Don't prompt for evaluating src blocks
+  (setq org-confirm-babel-evaluate nil)
+#+end_src
+
+** Key Bindings                                                        :keys:
+
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-c c") 'org-capture)
+  (global-set-key (kbd "C-c a") 'org-agenda)
+#+end_src
+
+* Packages
+** Helm
+
+#+begin_src emacs-lisp
+  (use-package helm)
+  (require 'helm-config)
+  (helm-mode 1)
+#+end_src
+
+*** Keybindings
+
+#+begin_src emacs-lisp
+  (define-key global-map (kbd "M-x") 'helm-M-x)
+  (define-key global-map (kbd "C-x C-f") 'helm-find-files)
+  (define-key global-map (kbd "M-y") 'helm-show-kill-ring)
+  (define-key global-map (kbd "C-x b") 'helm-mini)
+#+end_src
+
+** Org-ref
+
+Org-ref is a very convenient package for quick referencing.
+
+#+begin_src emacs-lisp
+  (use-package org-ref
+    :custom
+    (org-ref-default-bibliography (custom/org-path "zotero.bib")))
+#+end_src
+
+** Org-roam
+
+#+begin_src emacs-lisp
+  (use-package org-roam
+    :ensure t
+    :init
+    (setq org-roam-v2-ack t)
+    :custom
+    (org-roam-directory (file-truename (custom/org-path "notes")))
+    :config
+    (org-roam-setup))
+#+end_src
+
+*** Key Bindings                                                       :keys:
+
+#+begin_src emacs-lisp
+(global-set-key (kbd "C-c n f") 'org-roam-node-find)
+(global-set-key (kbd "C-c n i") 'org-roam-node-insert)
+(global-set-key (kbd "C-c n l") 'org-roam-buffer-toggle)
+#+end_src
+
+** Magit
+
+#+begin_src emacs-lisp
+(use-package magit
+  :bind (("C-M-g" . magit-status)))
+#+end_src
+
+** Evil Mode
+
+#+begin_src emacs-lisp
+  (use-package evil
+    :ensure t
+    :config
+    (evil-mode 1))
+  (use-package evil-surround
+    :ensure t
+    :config
+    (global-evil-surround-mode 1))
+#+end_src
+
+We remap some evil keys for bepo keyboard layout. You may want to
+remove ignore this block (e.g., add =:tangle no=) if you do not want
+that.
+
+#+begin_src emacs-lisp
+  (evil-define-key '(normal visual motion) 'global
+    (kbd "t") 'evil-backward-char
+    (kbd "s") 'evil-next-line
+    (kbd "r") 'evil-previous-line
+    (kbd "n") 'evil-forward-char)
+#+end_src
+
+Few improvements:
+- [ ] Check this works correctly with common plugins.
+- [ ] Rebind the =n= command to =l= key.
