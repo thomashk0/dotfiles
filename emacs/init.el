@@ -87,26 +87,24 @@
 
 ;; Use org-ref for quick referencing.
 (use-package org-ref
-    :custom
-    (org-ref-default-bibliography (custom/org-path "zotero.bib")))
-;; Light alternative to org-ref, but I don't know how to install it :(
-;; (require 'ox-bibtex)
+   :custom
+   (org-ref-default-bibliography (custom/org-path "zotero.bib")))
 
 ;; Zettlekasen-style notes with org-mode.
 (use-package org-roam
-      :ensure t
-      :hook
-      (after-init . org-roam-mode)
-      :custom
-      (org-roam-directory (file-truename (custom/org-path "notes")))
-      :bind (:map org-roam-mode-map
-              (("C-c n l" . org-roam)
-               ("C-c n f" . org-roam-find-file)
-               ("C-c n g" . org-roam-graph))
-              :map org-mode-map
-              (("C-c n i" . org-roam-insert))
-              (("C-c n I" . org-roam-insert-immediate))))
-(add-hook 'after-init-hook 'org-roam-mode)
+  :ensure t
+  :init
+  (setq org-roam-v2-ack t)
+  :custom
+  (org-roam-directory (file-truename (custom/org-path "notes"))
+  :config
+  (org-roam-setup)))
+;; Those bindings do not work when added to the ":bind" section of the
+;; use-package.
+(global-set-key (kbd "C-c n f") 'org-roam-node-find)
+(global-set-key (kbd "C-c n i") 'org-roam-node-insert)
+(global-set-key (kbd "C-c n l") 'org-roam-buffer-toggle)
+
 
 ;; Experimental, should I keep this??
 (require 'ox-latex)
@@ -206,9 +204,10 @@
                 ((org-agenda-overriding-header "\nCompleted today\n")))))))
 
 (org-babel-do-load-languages
-   'org-babel-load-languages '((C . t)
-                               (python . t)
-                               (scheme . t)))
+ 'org-babel-load-languages '((emacs-lisp . t)
+                             (C . t)
+                             (python . t)
+                             (scheme . t)))
 
 ;; Don't prompt for evaluating src blocks
 (setq org-confirm-babel-evaluate nil)
@@ -239,4 +238,4 @@
 (setq mu4e-view-show-addresses 't)
 
 ;; 4. Scheme
-(use-package geiser-guile)
+;; (use-package geiser-guile)
