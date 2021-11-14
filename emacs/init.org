@@ -342,6 +342,13 @@ We refile to the =project.org= file (or =work_project.org= if at work).
 #+end_src
 
 * Packages
+** Undo tree
+
+#+begin_src emacs-lisp
+  (use-package undo-tree
+    :init (global-undo-tree-mode))
+#+end_src
+
 ** Helm
 
 #+begin_src emacs-lisp
@@ -394,7 +401,7 @@ Org-ref is a very convenient package for quick referencing.
 
 #+begin_src emacs-lisp
 (use-package magit
-  :bind (("C-M-g" . magit-status)))
+  :bind (("C-x g" . magit-status)))
 #+end_src
 
 ** Evil Mode
