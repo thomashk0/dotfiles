@@ -2,15 +2,23 @@
 " ============================================================================ "
 " A minimal Vim configuration
 "
-" Author: Thomas Hiscock <thomas.hiscock@wanadoo.fr>
+" Author: Thomas Hiscock <thomashk000@gmail.com>
 " ============================================================================ "
 
 " Configuration variables {
 
 " Force this option to 0 to disable bepo keyboard bindings
 let g:use_bepo_keyboard = 1
-let g:use_extra_colorschemes = 1
+
+
+" Enable some mandatory plugins
 let g:use_plugins = 1
+
+" Enable nicer colorschemes (requires g:use_plugins = 1)
+let g:use_extra_colorschemes = 0
+
+" Enable some extra (non-essential) plugins
+let g:use_plugins_extra = 0
 
 " }
 " General options (Plugins, UI, etc.) {
@@ -21,20 +29,18 @@ if (g:use_plugins == 1)
         " Tab switching in Tmux using the same keybindings as in vim
         Plug 'christoomey/vim-tmux-navigator'
 
-        Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-        Plug 'junegunn/fzf.vim'
-
         Plug 'tpope/vim-surround'
         Plug 'tpope/vim-commentary'
         Plug 'godlygeek/tabular'
-
-        Plug 'rhysd/vim-clang-format', { 'for' : ['c', 'cpp'] }
         Plug 'sheerun/vim-polyglot'
 
-        Plug 'jceb/vim-orgmode', { 'for' : ['org'] }
-
-        Plug 'SirVer/ultisnips'
-        Plug 'honza/vim-snippets'
+        if (g:use_plugins_extra)
+            Plug 'rhysd/vim-clang-format', { 'for' : ['c', 'cpp'] }
+            Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+            Plug 'junegunn/fzf.vim'
+            Plug 'SirVer/ultisnips'
+            Plug 'honza/vim-snippets'
+        endif
 
         if (g:use_extra_colorschemes == 1)
             Plug 'rafi/awesome-vim-colorschemes'
@@ -57,7 +63,7 @@ set background=dark
 if (g:use_extra_colorschemes == 1)
     colorscheme apprentice
 else
-    colorscheme default
+    colorscheme desert
 endif
 
 syntax enable
