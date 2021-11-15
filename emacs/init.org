@@ -96,7 +96,13 @@ Display line numbers in programming modes.
               #'linum-mode))
 #+end_src
 
-Always follow symbolic link (without asking):
+Always show line & column in the status bar.
+
+#+begin_src emacs-lisp
+  (column-number-mode)
+#+end_src
+
+Always follow symbolic link without asking:
 
 #+begin_src emacs-lisp
 (setq vc-follow-symlinks t)
@@ -415,6 +421,8 @@ Org-ref is a very convenient package for quick referencing.
     :ensure t
     :config
     (global-evil-surround-mode 1))
+  (use-package org-evil
+    :ensure t)
 #+end_src
 
 We remap some evil keys for bepo keyboard layout. You may want to

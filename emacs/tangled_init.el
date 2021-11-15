@@ -29,6 +29,8 @@
               #'display-line-numbers-mode
             #'linum-mode))
 
+(column-number-mode)
+
 (setq vc-follow-symlinks t)
 
 (global-auto-revert-mode t)
@@ -210,7 +212,7 @@
 (global-set-key (kbd "C-c n l") 'org-roam-buffer-toggle)
 
 (use-package magit
-  :bind (("C-M-g" . magit-status)))
+  :bind (("C-x g" . magit-status)))
 
 (use-package evil
   :ensure t
@@ -220,6 +222,8 @@
   :ensure t
   :config
   (global-evil-surround-mode 1))
+(use-package org-evil
+  :ensure t)
 
 (evil-define-key '(normal visual motion) 'global
   (kbd "t") 'evil-backward-char
