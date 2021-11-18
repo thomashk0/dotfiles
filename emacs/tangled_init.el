@@ -172,6 +172,7 @@
 
 (org-babel-do-load-languages
  'org-babel-load-languages '((emacs-lisp . t)
+                             (shell . t)
                              (C . t)
                              (python . t)
                              (scheme . t)))
@@ -194,9 +195,18 @@
 (define-key global-map (kbd "M-y") 'helm-show-kill-ring)
 (define-key global-map (kbd "C-x b") 'helm-mini)
 
+(use-package org-tree-slide)
+
+(define-key org-tree-slide-mode-map
+  (kbd "<f9>") 'org-tree-slide-move-previous-tree)
+(define-key org-tree-slide-mode-map
+  (kbd "<f10>") 'org-tree-slide-move-next-tree)
+
 (use-package org-ref
-  :custom
-  (org-ref-default-bibliography (custom/org-path "zotero.bib")))
+  ;; Optional: set a path to a default bibtex file.
+  ;; :custom
+  ;; (org-ref-default-bibliography (custom/org-path "zotero.bib"))
+  )
 
 (use-package org-roam
   :ensure t

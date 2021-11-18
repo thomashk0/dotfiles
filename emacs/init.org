@@ -1,4 +1,6 @@
 #+TITLE: Literate Emacs Configuration
+#+AUTHOR: Thomas Hiscock
+#+EMAIL: thomashk000@gmail.com
 #+PROPERTY: header-args :tangle tangled_init.el
 #+TAGS: keys confvar
 
@@ -332,6 +334,7 @@ We refile to the =project.org= file (or =work_project.org= if at work).
 #+begin_src emacs-lisp
   (org-babel-do-load-languages
    'org-babel-load-languages '((emacs-lisp . t)
+                               (shell . t)
                                (C . t)
                                (python . t)
                                (scheme . t)))
@@ -372,14 +375,27 @@ We refile to the =project.org= file (or =work_project.org= if at work).
   (define-key global-map (kbd "C-x b") 'helm-mini)
 #+end_src
 
+** Org Presentation Mode
+
+#+begin_src emacs-lisp
+  (use-package org-tree-slide)
+
+  (define-key org-tree-slide-mode-map
+    (kbd "<f9>") 'org-tree-slide-move-previous-tree)
+  (define-key org-tree-slide-mode-map
+    (kbd "<f10>") 'org-tree-slide-move-next-tree)
+#+end_src
+
 ** Org-ref
 
 Org-ref is a very convenient package for quick referencing.
 
 #+begin_src emacs-lisp
   (use-package org-ref
-    :custom
-    (org-ref-default-bibliography (custom/org-path "zotero.bib")))
+    ;; Optional: set a path to a default bibtex file.
+    ;; :custom
+    ;; (org-ref-default-bibliography (custom/org-path "zotero.bib"))
+    )
 #+end_src
 
 ** Org-roam
