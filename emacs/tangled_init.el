@@ -124,6 +124,9 @@
 ;; Show only overview when opening new files
 (setq org-startup-folded t)
 
+;; Resize inline images
+(setq org-image-actual-width nil)
+
 (setq org-todo-keywords
       '((sequence "TODO(t)" "NEXT(n!)" "HOLD(h!@)" "MAYBE(m!)" "|" "DONE(d!)" "CANCELLED(c@)")))
 (setq org-todo-keyword-faces
@@ -171,17 +174,22 @@
 (setq org-log-into-drawer t)
 
 (org-babel-do-load-languages
- 'org-babel-load-languages '((emacs-lisp . t)
-                             (shell . t)
-                             (C . t)
+ 'org-babel-load-languages '((C . t)
+                             (emacs-lisp . t)
                              (python . t)
-                             (scheme . t)))
+                             (scheme . t)
+                             (shell . t)))
 
 ;; Don't prompt for evaluating src blocks
 (setq org-confirm-babel-evaluate nil)
 
 (global-set-key (kbd "C-c c") 'org-capture)
 (global-set-key (kbd "C-c a") 'org-agenda)
+
+(use-package doom-themes
+  :ensure t
+  :config
+  (load-theme 'doom-one t))
 
 (use-package undo-tree
   :init (global-undo-tree-mode))
@@ -206,7 +214,10 @@
   ;; Optional: set a path to a default bibtex file.
   ;; :custom
   ;; (org-ref-default-bibliography (custom/org-path "zotero.bib"))
+
+  ;; (setq org-ref-default-citation-link "citep")
   )
+(define-key org-mode-map (kbd "C-c ]") 'org-ref-insert-link)
 
 (use-package org-roam
   :ensure t
@@ -240,3 +251,22 @@
   (kbd "s") 'evil-next-line
   (kbd "r") 'evil-previous-line
   (kbd "n") 'evil-forward-char)
+
+(use-package projectile
+  :ensure t
+  :config
+  (projectile-mode +1))
+
+(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+
+(use-package julia-mode
+  :ensure t)
+(use-package julia-repl
+  :ensure t
+  :init
+  (add-hook 'julia-mode-hook 'julia-repl-mode))
+
+(use-package which-key
+  :ensure t
+  :init
+  (which-key-mode))

@@ -260,6 +260,9 @@ found, we modify some Org-mode variables accordingly.
 
   ;; Show only overview when opening new files
   (setq org-startup-folded t)
+
+  ;; Resize inline images
+  (setq org-image-actual-width nil)
 #+end_src
 
 An other possible style customization is visual line wrapping. However, this doesn't play well with 1 line/sentence writing style...
@@ -333,11 +336,11 @@ We refile to the =project.org= file (or =work_project.org= if at work).
 
 #+begin_src emacs-lisp
   (org-babel-do-load-languages
-   'org-babel-load-languages '((emacs-lisp . t)
-                               (shell . t)
-                               (C . t)
+   'org-babel-load-languages '((C . t)
+                               (emacs-lisp . t)
                                (python . t)
-                               (scheme . t)))
+                               (scheme . t)
+                               (shell . t)))
 
   ;; Don't prompt for evaluating src blocks
   (setq org-confirm-babel-evaluate nil)
@@ -351,6 +354,15 @@ We refile to the =project.org= file (or =work_project.org= if at work).
 #+end_src
 
 * Packages
+** Doom Themes
+
+#+begin_src emacs-lisp
+  (use-package doom-themes
+    :ensure t
+    :config
+    (load-theme 'doom-one t))
+#+end_src
+
 ** Undo tree
 
 #+begin_src emacs-lisp
@@ -395,7 +407,10 @@ Org-ref is a very convenient package for quick referencing.
     ;; Optional: set a path to a default bibtex file.
     ;; :custom
     ;; (org-ref-default-bibliography (custom/org-path "zotero.bib"))
+
+    ;; (setq org-ref-default-citation-link "citep")
     )
+  (define-key org-mode-map (kbd "C-c ]") 'org-ref-insert-link)
 #+end_src
 
 ** Org-roam
@@ -428,6 +443,12 @@ Org-ref is a very convenient package for quick referencing.
 
 ** Evil Mode
 
+I enable the following evil packages:
+- =evil=: the base package.
+- =evil-surround=: port of =vim-surround= pluging.
+- =org-evil=: some extra bindings for Org-mode, the package is very
+  minimal (compared to alternative evil org mode packages).
+
 #+begin_src emacs-lisp
   (use-package evil
     :ensure t
@@ -456,3 +477,35 @@ that.
 Few improvements:
 - [ ] Check this works correctly with common plugins.
 - [ ] Rebind the =n= command to =l= key.
+
+** Projectile
+
+#+begin_src emacs-lisp
+  (use-package projectile
+    :ensure t
+    :config
+    (projectile-mode +1))
+
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+#+end_src
+
+** Julia
+
+#+begin_src emacs-lisp
+  (use-package julia-mode
+    :ensure t)
+  (use-package julia-repl
+    :ensure t
+    :init
+    (add-hook 'julia-mode-hook 'julia-repl-mode))
+#+end_src
+
+
+** Which Key
+
+#+begin_src emacs-lisp
+  (use-package which-key
+    :ensure t
+    :init
+    (which-key-mode))
+#+end_src
