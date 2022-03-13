@@ -26,7 +26,7 @@ import           KeyBindings
 
 -- TODO: Synchronize with cabal version
 version :: (Int, Int)
-version = (2, 9)
+version = (2, 10)
 
 versionStr :: String
 versionStr = "my-xmonad " ++ show major ++ "." ++ show minor
@@ -100,7 +100,7 @@ keyBindings conf@XConfig {modMask = modm} = bindings
           , (modm, xK_h) -=> showHelp <?> "check & show keybindings"
           ]
       , section "applications"
-          [ (modm, xK_b) -=> spawn "xfce4-terminal -e zsh" <?> "start xfce4-terminal"
+          [ (modm, xK_b) -=> spawn "xfce4-terminal" <?> "start xfce4-terminal"
           , (modm, xK_d) -=> spawn dmenuCmd <?> "spawn dmenu"
           , (modm, xK_o) -=> ceaWhoIsPrompt <?> "prompt for ceawhois"
           , (modm, xK_f) -=> manPrompt promptCfg <?> "man prompt"
