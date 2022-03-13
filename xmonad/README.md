@@ -3,6 +3,7 @@
 ## Dependencies
 
 - Archlinux: `xorg-xmessage`
+- Debian 11+: `sudo apt install libx11-dev libxrandr-dev libxss-dev libxft-dev`
 
 ## Install with nix
 
