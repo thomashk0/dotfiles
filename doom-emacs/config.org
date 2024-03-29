@@ -1,0 +1,179 @@
+#+TITLE: Doom Emacs Literate configuration
+#+AUTHOR: Thomas Hiscock
+#+EMAIL: thomashk000@gmail.com
+#+PROPERTY: header-args :tangle config.el
+#+TAGS: keys confvar
+
+* Overview
+
+This is my =config.el= file written in literate style.
+
+** Usage
+
+*** Option 1: Generate a =init.el= File
+
+Code blocks from this file can be extracted into a single Emacs Lisp file, by
+running =M-x org-babel-tangle=. This file can then be copied (or symlinked) at
+=~/.emacs.d/init.el=.
+
+* General =doom-emacs= Options
+
+Those are the default options suggested by =doom-emacs=.
+
+#+begin_src emacs-lisp
+(setq user-full-name "Thomas Hiscock"
+      user-mail-address "thomashk000@gmail.com")
+#+end_src
+
+#+begin_src emacs-lisp
+
+(setq doom-theme 'doom-dracula)
+;; Alternatives:
+;; (setq doom-theme 'doom-one)
+;; (setq doom-theme 'doom-ayu-light)
+(setq doom-font
+      (font-spec :family "FiraCode" :size 14))
+(setq doom-variable-pitch-font (font-spec :family "sans" :size 14))
+
+(setq display-line-numbers-type 'relative)
+#+end_src
+
+** Key Bindings
+
+We remap some keys for bepo keyboards:
+
+#+begin_src emacs-lisp
+(map!
+ :nvm "t" 'evil-backward-char
+ :nvm "s" 'evil-next-line
+ :nvm "r" 'evil-previous-line
+ :nvm "n" 'evil-forward-char
+ :map evil-snipe-local-mode-map
+ ;; Unbinds "s" and "t"
+ (:nm "k" 'evil-snipe-s
+  :nm "K" 'evil-snipe-S
+  :nm "s" nil
+  :nm "S" nil)
+ :map evil-snipe-override-local-mode-map
+ (:m "j" 'evil-snipe-t
+  :m "J" 'evil-snipe-T
+  :m "t" nil
+  :m "T" nil))
+#+end_src
+
+* Org-mode
+
+Yeah, org-mode deserve its own section!
+
+** Special Paths                                                    :confvar:
+
+All my Org files are placed in a git-managed directory (=~/Documents/Org=). This
+value can be changed, but usually I just create a symlink.
+
+#+begin_src emacs-lisp
+  (setq org-directory "~/Documents/Org")
+#+end_src
+
+As we will refer frequently to files in the =org-directory=, we introduce an
+helper (=custom/org-path=) to reference those files.
+
+#+begin_src emacs-lisp
+  (defun custom/org-path (p)
+    "Create absolute path for a file located in org-directory"
+    (concat org-directory "/" p))
+#+end_src
+
+I want my org-mode configuration to work both at home and at work. Files used at
+work are prefixed with =work_=. If those are found, we modify some Org-mode
+variables accordingly.
+
+#+begin_src emacs-lisp
+  ;; We need the seq package for some sequence manipulations bellow.
+  (require 'seq)
+
+  ;; The full list of files that might be present in org-directory.
+  (setq custom/org-files-all
+        '("inbox.org"
+          "projects.org"
+          "work_inbox.org"
+          "work_projects.org"))
+
+  (setq custom/org-files-available
+        (seq-filter 'file-exists-p
+                    (seq-map (lambda (x) (expand-file-name (concat org-directory "/" x)))
+                             custom/org-files-all)))
+
+  ;; Check if we are at work or at home (i.e., presence of a "work_inbox.org" file).
+  (setq custom/org-at-work
+        (file-exists-p (custom/org-path "work_inbox.org")))
+
+  ;; Build path to special org-mode files.
+  (setq custom/org-inbox
+        (custom/org-path (if custom/org-at-work "work_inbox.org" "inbox.org")))
+  (setq custom/org-projects
+        (custom/org-path (if custom/org-at-work "work_projects.org" "projects.org")))
+
+  (setq org-agenda-files custom/org-files-available)
+#+end_src
+
+** Keywords and Tags
+
+Note: those are still subject to change (in particular the tags).
+
+#+begin_src emacs-lisp
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "NEXT(n!)" "HOLD(h!@)" "MAYBE(m!)" "|" "DONE(d!)" "CANCELLED(c@)")))
+  (setq org-todo-keyword-faces
+        '(("TODO" . (:foreground "red" :weight bold))
+          ("NEXT" . (:foreground "purple" :weight bold))
+          ("HOLD" . (:foreground "blue" :weight bold))
+          ("MAYBE" . (:foreground "dark orange" :weight bold))
+          ("DONE" . (:foreground "forest green" :weight bold))
+          ("CANCELLED" . (:foreground "red" :weight bold))))
+
+  (setq org-tag-alist
+        '((:startgroup . nil)
+          ("@work" . ?w) ("@home" . ?h)
+          (:endgroup . nil)
+          ("inbox" . ?b)
+          ;; Content type
+          ("tip" . ?t)
+          ("review" . ?r)
+          ("note" . ?n)
+          ("idea" . ?i)
+          ("project" . ?p)
+          ;; Topic
+          ("desktop" . ?d)
+          ("hot". ?o)))
+#+end_src
+
+** Capture Templates and Refile
+
+#+begin_src emacs-lisp
+  (setq org-capture-templates
+      `(
+        ("t" "Todo" entry (file ,custom/org-inbox)
+         "* TODO %?
+:PROPERTIES:
+:CREATED:  %U
+:END:" :prepend t)))
+#+end_src
+
+We refile to the =project.org= file (or =work_project.org= if at work).
+
+#+begin_src emacs-lisp
+  (setq org-refile-targets
+      `((,custom/org-projects :regexp . "\\(?:Tasks?\\)")
+        ;; Experimental, see if the tag approach is ok
+        ;; (,custom/org-projects :maxlevel . 2))
+      ))
+  (setq org-refile-use-outline-path 'file)
+  (setq org-outline-path-complete-in-steps nil)
+#+end_src
+
+** Org-roam
+
+#+begin_src emacs-lisp
+(setq org-roam-v2-ack t)
+(setq org-roam-directory (file-truename (custom/org-path "notes")))
+#+end_src
