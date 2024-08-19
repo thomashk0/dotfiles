@@ -34,6 +34,7 @@ if (g:use_plugins == 1)
         Plug 'godlygeek/tabular'
         Plug 'sheerun/vim-polyglot'
 
+        " Usually I don't use those.
         if (g:use_plugins_extra)
             Plug 'rhysd/vim-clang-format', { 'for' : ['c', 'cpp'] }
             Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
@@ -95,6 +96,12 @@ set path=.
 " set path+=**
 set wildmenu
 
+let g:netrw_banner=0     " Completely useful, :help netrw-quickmap is much better
+let g:netrw_liststyle=3  " Tree-like view
+let g:netrw_list_hide=netrw_gitignore#Hide()
+let g:netrw_list_hide.=',\(^\|\s\s\)\zs\.\S\+'
+
+
 " }
 " Keybindings {
 
@@ -111,8 +118,10 @@ if (g:use_bepo_keyboard == 1)
     noremap r k
     noremap s j
     noremap t h
+    noremap T H
 
     noremap h t
+    noremap H T
     noremap j s
     noremap l n
     noremap k r
@@ -120,11 +129,11 @@ if (g:use_bepo_keyboard == 1)
     noremap è ^
     noremap È 0
 
-    " Fast moves between windows
-    nnoremap <C-r> <C-W>k
-    nnoremap <C-s> <C-W>j
-    nnoremap <C-t> <C-W>h
-    nnoremap <C-n> <C-W>l
+    " Fast moves between windows.
+    " nnoremap <C-r> <C-W>k
+    " nnoremap <C-s> <C-W>j
+    " nnoremap <C-t> <C-W>h
+    " nnoremap <C-n> <C-W>l
 
     highlight NbSp ctermbg=lightgray guibg=lightred
     match NbSp /\%xa0/
@@ -149,12 +158,15 @@ if (g:use_bepo_keyboard == 1)
     nmap <leader>s :w<CR>
     nmap <leader>q :q!<CR>
 
+    nmap <leader>t <C-]>
+    nmap <leader>n <C-T>
+
     let g:UltiSnipsExpandTrigger="<C-a>"
     let g:UltiSnipsJumpForwardTrigger="<C-b>"
     let g:UltiSnipsJumpBackwardTrigger="<C-z>"
     let g:UltiSnipsEditSplit="vertical"
 
-    nmap <leader><leader> :blast<CR>
+    nmap <leader><leader> :bprev<CR>
     nmap <leader>b :Buffers<CR>
     nmap <leader>f :Files<CR>
     if has('nvim')
@@ -218,6 +230,8 @@ endfunction
 
 " }
 " Per language tweaks {
+
+" VHDL {
 function! SetupVHDLConfig()
     setlocal comments^=:--!
     setlocal comments^=:--
@@ -226,9 +240,24 @@ function! SetupVHDLConfig()
     setlocal foldmarker=@{,@}
 endfunction
 autocmd FileType vhdl call SetupVHDLConfig()
+" }
 
+" Makefile & configuration {
 autocmd FileType make setlocal ts=8 sts=8 sw=8 noexpandtab
 autocmd FileType conf setlocal ts=8 sts=8 sw=8 noexpandtab
+" }
 
-" Orgmode
+" Bepo compatibility for netrw {
+augroup netrw_maps
+  autocmd!
+  autocmd filetype netrw call ApplyNetrwMaps()
+augroup END
+
+function ApplyNetrwMaps()
+  nnoremap <buffer> r k
+  nnoremap <buffer> s j
+  nnoremap <buffer> n <CR>
+endfunction
+" }
+
 " }
