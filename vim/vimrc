@@ -10,12 +10,11 @@
 " Force this option to 0 to disable bepo keyboard bindings
 let g:use_bepo_keyboard = 1
 
-
 " Enable some mandatory plugins
 let g:use_plugins = 1
 
 " Enable nicer colorschemes (requires g:use_plugins = 1)
-let g:use_extra_colorschemes = 0
+let g:use_extra_colorschemes = 1
 
 " Enable some extra (non-essential) plugins
 let g:use_plugins_extra = 0
@@ -26,19 +25,16 @@ let g:use_plugins_extra = 0
 set nocp
 if (g:use_plugins == 1)
     call plug#begin('~/.vim/plugged')
-        " Tab switching in Tmux using the same keybindings as in vim
-        Plug 'christoomey/vim-tmux-navigator'
-
         Plug 'tpope/vim-surround'
         Plug 'tpope/vim-commentary'
         Plug 'godlygeek/tabular'
         Plug 'sheerun/vim-polyglot'
+        Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+        Plug 'junegunn/fzf.vim'
 
         " Usually I don't use those.
         if (g:use_plugins_extra)
             Plug 'rhysd/vim-clang-format', { 'for' : ['c', 'cpp'] }
-            Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-            Plug 'junegunn/fzf.vim'
             Plug 'SirVer/ultisnips'
             Plug 'honza/vim-snippets'
         endif
@@ -86,15 +82,23 @@ set softtabstop=4
 set smarttab
 set smartindent
 set nowrap
+set scrolloff=10  " Number of lines shown before the cursor
 
 set ignorecase
 set hlsearch            " Highlight search results
-set incsearch           " Search while typing the search string
+set noincsearch
+" set incsearch           " Search while typing the search string
 " by default, make vim only complete in current directory
 set path=.
 " To support glob-like search use:
 " set path+=**
 set wildmenu
+" Filter-out files from file searches
+set wildignore+=*.o,*.obj,*.bin,*.dll,*.exe
+set wildignore+=*/.git/*,*/.svn/*,*/__pycache__/*,*/build/**
+set wildignore+=*.pyc
+set wildignore+=*.DS_Store
+set wildignore+=*.aux,*.bbl,*.blg,*.brf,*.fls,*.fdb_latexmk,*.synctex.gz,*.pdf
 
 let g:netrw_banner=0     " Completely useful, :help netrw-quickmap is much better
 let g:netrw_liststyle=3  " Tree-like view
@@ -140,14 +144,12 @@ if (g:use_bepo_keyboard == 1)
 
     " Completion bindings
     " See :help inc-completion
-    imap ,o <C-X><C-O>
-    imap ,l <C-X><C-L>
-    imap ,t <C-X><C-]>
-    imap ,p <C-X><C-P>
-    imap ,f <C-X><C-F>
-    imap ,n <C-N>
-    imap ,a <C-P>
-    vmap ,f :ClangFormat<CR>
+    imap <localleader>o <C-X><C-O>
+    imap <localleader>l <C-X><C-L>
+    imap <localleader>t <C-X><C-]>
+    imap <localleader>p <C-X><C-P>
+    imap <localleader>f <C-X><C-F>
+    vmap <localleader>f :ClangFormat<CR>
 
     " C-_ maps to C-/ in reality…
     " In normal mode, also move down ;)
@@ -166,21 +168,53 @@ if (g:use_bepo_keyboard == 1)
     let g:UltiSnipsJumpBackwardTrigger="<C-z>"
     let g:UltiSnipsEditSplit="vertical"
 
-    nmap <leader><leader> :bprev<CR>
-    nmap <leader>b :Buffers<CR>
-    nmap <leader>f :Files<CR>
-    if has('nvim')
-        " temporary fix, the :GFiles commands fail with neovim :(
-        nmap <leader>gf :call fzf#run({'source': 'git ls-files', 'sink': 'e'})<CR>
-    else
-        nmap <leader>gf :GFiles<CR>
-    endif
 endif
 
 nmap <F2> :call ToggleSpell()<CR>
 nmap <F3> :call DeleteTrailingWS()<CR>
 nmap <F4> :ClangFormat<CR>
 imap <F5> FIXME(ThomasH, <C-R>=strftime("%d %b %Y")<CR>):
+
+" Fzf {
+nmap <leader>ft :BTags<CR>
+nmap <leader>fl :BLines<CR>
+nmap <leader>fb :Buffers<CR>
+nmap <leader>ff :Files<CR>
+nmap <leader>fm :Marks<CR>
+nmap <leader>fj :Jumps<CR>
+nmap <leader>fh :History<CR>
+if has('nvim')
+    " temporary fix, the :GFiles commands fail with neovim :(
+    nmap <leader>fg :call fzf#run({'source': 'git ls-files', 'sink': 'e'})<CR>
+else
+    nmap <leader>fg :GFiles<CR>
+endif
+" }
+
+" Buffers {
+nmap <leader>bd :bdel
+nmap <leader>bn :bnext
+nmap <leader>bp :bprev
+nmap <leader>bl :blast
+nmap <leader>bf :bfirst
+nmap <leader><leader> :bmod<CR>
+" }
+
+" FIXME: recursively send 'zo' open to match fold level.
+" keymap('n', '<leader>no', 'zMzA')
+" Move to start of next fold
+nmap <leader>nn zj
+" Move to start of previous fold
+nmap <leader>np zk
+
+" Quicfix {
+nmap <leader>cn :cnext<CR>
+nmap <leader>co :copen<CR>
+nmap <leader>cc :cclose<CR>
+nmap <leader>cp :cprev<CR>
+nmap <leader>cf :cfirst<CR>
+nmap <leader>cl :clast<CR>
+" }
 
 "}
 " Utility functions {
@@ -230,6 +264,12 @@ endfunction
 
 " }
 " Per language tweaks {
+
+function! SetupPython()
+    setlocal errorformat=%f:%l:%c:\ %m
+    setlocal makeprg=ruff\ check\ --output-format\ concise
+endfunction
+autocmd FileType python call SetupPython()
 
 " VHDL {
 function! SetupVHDLConfig()
